@@ -2,9 +2,23 @@ import re
 import os
 import sys
 
+import ssl
+import urllib.request
+
 import argparse
 
 import xml.etree.ElementTree as ET
+
+try:
+	ssl._create_default_https_context = ssl._create_unverified_context
+except:
+	pass
+
+def get_online_version():
+	with urllib.request.urlopen("https://raw.githubusercontent.com/GardnerLiam/Handcrab/master/README.md") as f:
+		text = f.read().decode("utf-8").split("\n")
+		return text[3]
+	return ""
 
 def tableToString(tableData, filename="output.xml"):
 	tableData = tableData.replace("><", ">!!!IGNOREME!!!<")
@@ -89,8 +103,29 @@ parser.add_argument("-rt", "--resource-template", default="HTML/Files/ResourceTe
 										help="path to resource template")
 parser.add_argument("-s", "--save-pandoc", default="testfile.html", 
 										help="Saves the raw pandoc output file to given path")
-
+parser.add_argument("--version", help="Displays version number", action="store_true")
+parser.add_argument("--update", help="Downloads latest version", action="store_true")
 args = parser.parse_args()
+
+if args.version:
+	current_version = ""
+	with open(os.environ['HOME']+"/Desktop/handcrab/README.md", 'r') as f:
+		lines = f.read().split("\n")
+		print(lines)
+		current_version = lines[3]
+	print("Handcrab version {}".format(current_version))
+	try:
+		onlineVersion = get_online_version()
+		if onlineVersion != current_version:
+			print("An update is available. Run handcrab --update to download the newest version")
+	except:
+		print("Could not load new version")
+		pass
+	sys.exit(0)
+
+if args.update:
+	os.system("screen -S python3 {}".format(os.environ["HOME"]+"/Desktop/handcrab/update.py"))
+	sys.exit(0)
 
 filein = args.input
 fileout = args.output
