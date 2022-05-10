@@ -107,24 +107,26 @@ parser.add_argument("--version", help="Displays version number", action="store_t
 parser.add_argument("--update", help="Downloads latest version", action="store_true")
 args = parser.parse_args()
 
+
+current_version = ""
+with open(os.environ["HOME"] + "/Desktop/handcrab/README.md", 'r') as f:
+	lines = f.read().split("\n")
+	current_version = lines[3].strip()
+onlineVersion = current_version[:]
+try:
+	online_version = get_online_version().strip()
+except:
+	pass
+
+if current_version != online_version:
+	print("An update is available! Run 'handcrab --update' to get the new update")
+
 if args.version:
-	current_version = ""
-	with open(os.environ['HOME']+"/Desktop/handcrab/README.md", 'r') as f:
-		lines = f.read().split("\n")
-		print(lines)
-		current_version = lines[3]
 	print("Handcrab version {}".format(current_version))
-	try:
-		onlineVersion = get_online_version()
-		if onlineVersion != current_version:
-			print("An update is available. Run handcrab --update to download the newest version")
-	except:
-		print("Could not load new version")
-		pass
 	sys.exit(0)
 
 if args.update:
-	os.system("screen -S python3 {}".format(os.environ["HOME"]+"/Desktop/handcrab/update.py"))
+	os.system("python3 {}".format(os.environ["HOME"]+"/Desktop/handcrab/update.py"))
 	sys.exit(0)
 
 filein = args.input
