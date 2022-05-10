@@ -89,6 +89,7 @@ def longDescHandler(substring, buttonText):
 			count+=1
 	if count%2 == 1:
 		substring.append("</div>")
+	substring = substring[:-1] + ["<hr />"] + substring[-1:]
 	substring = '\n'.join(substring)
 	newString = tableToString(substring)
 	button = '<button onclick=hideSeek('+"'longdesc{}'".format(descIndex)+') style="box-shadow:none">'
