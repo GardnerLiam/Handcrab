@@ -183,6 +183,16 @@ for i in range(0, len(marked), 2):
 	if ("!ALTMARKER!" in substring or "!NOALT!" in substring):
 		newString = parseAltText(substring)	
 		newBodyCode = newBodyCode.replace(substring, newString)
+	if ("!UNDERLINE!" in substring):
+		location = substring.find("!UNDERLINE!") + len("!UNDERLINE!")
+		newString = ""
+		if substring[location:] == ",,,," or substring[location:] == " ,,,,":
+			newString = r'<span style="border-bottom: 1px solid black; padding-left: 50px">&nbsp;</span>'
+		else:
+			length = substring[location+1:-4]
+			newString = '<span style="border-bottom: 1px solid black; padding-left: {}px">&nbsp;</span>'
+			newString = newString.format(length)
+		newBodyCode = newBodyCode.replace(substring, newString)
 	if ("!ROWTABLE!" in substring):
 		newString = parseRowTable(substring)
 		newBodyCode = newBodyCode.replace(substring, newString)
@@ -205,7 +215,21 @@ titleStart = h1TagStart + bodyCode[h1TagStart:].find(">")+1
 h1TagEnd = h1TagStart + bodyCode[h1TagStart:].find("</h1")
 title = bodyCode[titleStart:h1TagEnd]
 titleStripped = title.replace("\n", " ")
-titleStripped = titleStripped.replace("<br />", "")
+titleSectioned = titleStripped.replace("<br /> ", "\n").split("\n")
+if len(titleSectioned) != 3 or "math circles" not in titleSectioned[0].lower():
+	print("Your title formatting is probably wrong :(")
+	print("Gonna kill handcrab before something yells loudly")
+	sys.exit(1)
+	
+title = "<br /> ".join(titleSectioned)
+
+level = titleSectioned[0]
+lesson = titleSectioned[2]
+
+levelLower = level.lower()
+level = level[:levelLower.find("math circ")]
+while level[-1] == " ":
+	level = level[:-1]
 
 bodyCode = bodyCode[:h1TagStart] + bodyCode[h1TagEnd+5:]
 h1TagStart = bodyCode.find("<h1")
@@ -224,7 +248,7 @@ htmlFile = htmlFile.replace("<h1>Title</h1>", "")
 
 titleStart = htmlFile.find("<title>")+7
 titleEnd = htmlFile.find("</title>")
-htmlFile = htmlFile[:titleStart] + titleStripped + htmlFile[titleEnd:]
+htmlFile = htmlFile[:titleStart] + level + " " + lesson + htmlFile[titleEnd:]
 
 htmlFile = htmlFile.replace("<p>Content</p>", bodyCode)
 
