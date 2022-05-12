@@ -106,6 +106,7 @@ parser.add_argument("-s", "--save-pandoc", default="testfile.html",
 										help="Saves the raw pandoc output file to given path")
 parser.add_argument("--version", help="Displays version number", action="store_true")
 parser.add_argument("--update", help="Downloads latest version", action="store_true")
+parser.add_argument("--docs", help="Opens documentation in browser", action="store_true")
 args = parser.parse_args()
 
 
@@ -122,6 +123,11 @@ except:
 if current_version != online_version:
 	print("An update is available! Run 'handcrab --update' to get the new update")
 
+if args.docs:
+	import webbrowser
+	url = 'file:///'+os.environ["HOME"]+'/Desktop/handcrab/HandcrabDocs/Docs/Handcrab docs.html'
+	webbrowser.open(url)
+	sys.exit(0)
 if args.version:
 	print("Handcrab version {}".format(current_version))
 	sys.exit(0)
