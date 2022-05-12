@@ -174,8 +174,18 @@ for i in range(len(bodyCode)):
 bodyCode = "\n".join(bodyCode[pair[0]+1:pair[1]])
 
 bodyCode = bodyCode.replace("{aligned}", "{align*}")
-bodyCode = bodyCode.replace(".pdf", ".png")
-bodyCode = bodyCode.replace('<img src="', '<img src="images/')
+
+imageMarkings = [m.start() for m in re.finditer("<img", bodyCode)]
+imageEndings = [i + bodyCode[i:].find(">")+1 for i in imageMarkings]
+newBodyCode = bodyCode[:]
+
+for i in range(len(imageMarkings)):
+	image = bodyCode[imageMarkings[i]:imageEndings[i]]
+	nimage = image.replace('<img src="', '<img src="images/')
+	nimage = nimage.replace(".pdf", ".png")
+	newBodyCode = newBodyCode.replace(image, nimage)
+
+bodyCode = newBodyCode[:]
 
 newBodyCode = bodyCode[:]
 
