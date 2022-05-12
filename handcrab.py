@@ -130,12 +130,22 @@ if args.update:
 	os.system("python3 {}".format(os.environ["HOME"]+"/Desktop/handcrab/update.py"))
 	sys.exit(0)
 
+handcrab_path = os.environ["HOME"] + "/Desktop/handcrab/"
+
 filein = args.input
 fileout = args.output
 
 rawpandoc = args.save_pandoc
 
 restemp = args.resource_template
+if restemp.lower() == "lesson":
+	restemp = handcrab_path+"Templates/Lesson.html"
+elif "problem" in restemp.lower():
+	restemp = handcrab_path+"Templates/ProblemSet.html"
+elif "solution" in restemp.lower():
+	restemp = handcrab_path+"Templates/Solutions.html"
+else:
+	restemp = handcrab_path+"Templates/Default.html"
 
 cmd = 'pandoc -f latex --mathjax -t html "{}" -s -o "{}" --metadata title="..."'.format(filein, rawpandoc)
 
