@@ -20,13 +20,29 @@ except:
 	stop = True
 
 if not stop:
-	files = [handcrab_path + f for f in os.listdir(handcrab_path) if f != "update.py"]
-	files = [f for f in files if os.path.isfile(f)]
-	shutil.rmtree(handcrab_path + "build/")
-	shutil.rmtree(handcrab_path + "dist/")
+	files = [handcrab_path + f for f in os.listdir(handcrab_path) if os.path.isfile(handcrab_path + f)]
+	try:
+		shutil.rmtree(handcrab_path + "build/")
+	except:
+		pass
+	try:
+		shutil.rmtree(handcrab_path + "dist/")
+	except:
+		pass
+	try:
+		shutil.rmtree(handcrab_path + "Templates/")
+	except:
+		pass
+	try:
+		shutil.rmtree(handcrab_path + "HandcrabDocs/")
+	except:
+		pass
 
 	for i in files:
-		os.remove(i)
+		try:
+			os.remove(i)
+		except:
+			pass
 
 	master_folder = handcrab_path + "Handcrab-master/"
 	
