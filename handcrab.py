@@ -54,12 +54,15 @@ def parseRowColTable(substring):
 	tableData = list(filter(lambda a: a != "", tableData))
 	rowTagInstances = [j for j in range(len(tableData)) if "<tr" in tableData[j]]
 	for j in range(rowTagInstances[0]+2, rowTagInstances[1]):
+		print(tableData[j], end=" ===> ")
 		tableData[j] = tableData[j].replace("<td", '<th scope="col"')
 		tableData[j] = tableData[j].replace("</td", "</th")
+		print(tableData[j])
 	rowTagInstances = rowTagInstances[1:]
 	for j in rowTagInstances:
 		tableData[j+1] = tableData[j+1].replace("<td", '<th scope="row"')
-		tableData[j+1] = tableData[j+1].replace("</th", '</th')
+		tableData[j+1] = tableData[j+1].replace("</td", '</th')
+		print(tableData[j+1])
 	tableData = '\n'.join(tableData)
 	return tableData
 
@@ -144,7 +147,7 @@ fileout = args.output
 rawpandoc = args.save_pandoc
 
 restemp = args.resource_template
-if restemp.lower() == "lesson":
+if "lesson" in restemp.lower():
 	restemp = handcrab_path+"Templates/Lesson.html"
 elif "problem" in restemp.lower():
 	restemp = handcrab_path+"Templates/ProblemSet.html"
@@ -181,7 +184,8 @@ newBodyCode = bodyCode[:]
 
 for i in range(len(imageMarkings)):
 	image = bodyCode[imageMarkings[i]:imageEndings[i]]
-	nimage = image.replace('<img src="', '<img src="images/')
+	nimage = image.replace("\n", " ").replace("\t", " ")
+	nimage = nimage.replace('<img src="', '<img src="images/')
 	nimage = nimage.replace(".pdf", ".png")
 	newBodyCode = newBodyCode.replace(image, nimage)
 
