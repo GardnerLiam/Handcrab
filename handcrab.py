@@ -54,15 +54,12 @@ def parseRowColTable(substring):
 	tableData = list(filter(lambda a: a != "", tableData))
 	rowTagInstances = [j for j in range(len(tableData)) if "<tr" in tableData[j]]
 	for j in range(rowTagInstances[0]+2, rowTagInstances[1]):
-		print(tableData[j], end=" ===> ")
 		tableData[j] = tableData[j].replace("<td", '<th scope="col"')
 		tableData[j] = tableData[j].replace("</td", "</th")
-		print(tableData[j])
 	rowTagInstances = rowTagInstances[1:]
 	for j in rowTagInstances:
 		tableData[j+1] = tableData[j+1].replace("<td", '<th scope="row"')
 		tableData[j+1] = tableData[j+1].replace("</td", '</th')
-		print(tableData[j+1])
 	tableData = '\n'.join(tableData)
 	return tableData
 
