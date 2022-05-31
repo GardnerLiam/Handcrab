@@ -1,0 +1,70 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm, cancel} 				%Math Packages
+\usepackage{setspace, multicol, graphicx, tikz, wrapfig, multicol} %Formatting Packages
+\usepackage{tcolorbox}
+\usepackage[margin=1in]{geometry}
+\usepackage{comment}
+\newcounter{question_num}
+\usepackage[inline]{enumitem}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{csquotes}
+\def\UrlFont{\em}
+\hypersetup{
+colorlinks=true,
+urlcolor=blue}
+
+\includecomment{comment} 
+%\excludecomment{comment}
+\specialcomment{wspace}{\begingroup}{\endgroup}
+\specialcomment{solution}{\begingroup \color{red}}{\endgroup}
+%\specialcomment{example}{\begingroup}{\endgroup}
+%\excludecomment{solution}
+%\excludecomment{example}
+
+\includecomment{wspace}
+
+%% Indentation
+\setlength{\parskip}{\bigskipamount}
+\setlength{\parindent}{0pt}
+\newcommand{\noparskip}{\vspace{-\medskipamount}}
+
+%% Sets
+\newcommand{\R}{\mathbb{R}} % Reals
+\newcommand{\Z}{\mathbb{Z}} % Integersxt
+\newcommand{\N}{\mathbb{N}} % Naturals
+\newcommand{\Q}{\mathbb{Q}} % Rationals
+\newcommand{\C}{\mathbb{C}} % Complex
+\newcommand{\T}{\mathbb{T}} % circle, 1 dimensional Torus
+\newcommand{\I}{\mathbb{I}} % Unit interval
+\newcommand{\bb}[1]{\mathbb{#1}} % For other Blackboard letters
+\newcommand{\scr}[1]{\mathcal{#1}} % For other Script fonts
+
+%% Geometry
+\newcommand{\tri}{\triangle}
+
+%% Certain Visual Perceptions of Radiation in the range of the Electromagnetic Spectrum
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\green}[1]{\textcolor{ForestGreen}{#1}}
+\newcommand{\pink}[1]{\textcolor{magenta}{#1}}
+\newcommand{\yellow}[1]{\textcolor{yellow}{#1}}
+
+%% Environments
+\newtheorem{defn}{Definition}
+\newtheorem{thm}{Theorem}
+\newtheorem{rl}{Rule}
+
+\theoremstyle{definition}
+\newtheorem{ex}{Example}
+\newtheorem{warmup}{Warm-up}
+\newtheorem{exercise}{Exercise}
+
+%% Highlight for Practice
+\usepackage{xcolor}
+\graphicspath{{images/}}
+
+%% preamble ends here - none of the above will appear in the typeset document
+%% content begins here
+
+

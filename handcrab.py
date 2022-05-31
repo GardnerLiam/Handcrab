@@ -9,6 +9,8 @@ import argparse
 
 import xml.etree.ElementTree as ET
 
+import oracle
+
 try:
 	ssl._create_default_https_context = ssl._create_unverified_context
 except:
@@ -68,12 +70,19 @@ def parseAltText(substring):
 	imageStringEnd = imageStringBegin + substring[imageStringBegin:].find("/>")+2
 	imageString = substring[imageStringBegin:imageStringEnd]
 	comment = ""
-	if ("!ALTMARKER!" in substring):
+	newString = ""
+	if ("!ALTMARKERS!" in substring):
+		commentBegin = substring.find("!ALTMARKERS!")
+		comment = substring[commentBegin+13:-4]
+		comment = comment.replace("\t", " ")
+		comment = comment.replace("\n", " ")
+		newString = imageString.replace('alt="image"', 'class="static" alt="{}"'.format(comment))
+	elif ("!ALTMARKER!" in substring):
 		commentBegin = substring.find("!ALTMARKER!")
 		comment = substring[commentBegin+12:-4]
 		comment = comment.replace("\t", " ")
 		comment = comment.replace("\n", " ")
-	newString = imageString.replace('alt="image"', 'alt="{}"'.format(comment))
+		newString = imageString.replace('alt="image"', 'alt="{}"'.format(comment))
 	return newString
 
 def longDescHandler(substring, buttonText):
@@ -107,6 +116,7 @@ parser.add_argument("-s", "--save-pandoc", default="testfile.html",
 parser.add_argument("--version", help="Displays version number", action="store_true")
 parser.add_argument("--update", help="Downloads latest version", action="store_true")
 parser.add_argument("--docs", help="Opens documentation in browser", action="store_true")
+parser.add_argument("-a", "--appraise", help="Appraise the input file", action="store_true")
 args = parser.parse_args()
 
 
@@ -140,7 +150,15 @@ handcrab_path = os.environ["HOME"] + "/Desktop/handcrab/"
 
 filein = args.input
 fileout = args.output
-
+if args.appraise:
+	data, filestart = oracle.read(filein)
+	parsed = oracle.parse(data, filestart)
+	if fileout is None:
+		print(oracle.log(parsed))
+	else:
+		with open(fileout, 'w') as f:
+			f.write(oracle.log(parsed))
+	sys.exit(0)
 rawpandoc = args.save_pandoc
 
 restemp = args.resource_template
@@ -207,7 +225,7 @@ for i in range(0, len(marked), 2):
 	start = marked[i]
 	end = marked[i+1]
 	substring = bodyCode[start:end+4]
-	if ("!ALTMARKER!" in substring or "!NOALT!" in substring):
+	if ("!ALTMARKER" in substring or "!NOALT!" in substring):
 		newString = parseAltText(substring)	
 		newBodyCode = newBodyCode.replace(substring, newString)
 	if ("!UNDERLINE!" in substring):

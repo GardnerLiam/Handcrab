@@ -1,0 +1,3 @@
+([('handcrab',
+   '/Users/cemccoop/Desktop/handcrab/dist/handcrab',
+   'EXECUTABLE')],)
