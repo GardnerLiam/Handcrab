@@ -1,7 +1,7 @@
 # Handcrab
 
 # Version
-1.9
+1.9.1
 
 # Changelog
 Version 1.1 &mdash; Added update script

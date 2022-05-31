@@ -83,6 +83,8 @@ def parseAltText(substring):
 		comment = comment.replace("\t", " ")
 		comment = comment.replace("\n", " ")
 		newString = imageString.replace('alt="image"', 'alt="{}"'.format(comment))
+	else:
+		newString = imageString.replace('alt="image"', 'alt=""')
 	return newString
 
 def longDescHandler(substring, buttonText):
