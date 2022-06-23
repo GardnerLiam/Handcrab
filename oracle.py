@@ -1,8 +1,14 @@
+def readFromTop(filein):
+	data = ""
+	with open(filein, 'r') as f:
+		data = f.read().split("\n")
+	return (data, 0)
+
+
 def read(filein):
 	data = ""
 	with open(filein, 'r') as f:
 		data = f.read().split("\n")
-
 	start = 0
 	for i in range(len(data)):
 		if "begin{document}" in data[i]:
@@ -15,6 +21,8 @@ def parse(data, start):
 	item_forced = set()
 	uniitem_list = set()
 	multicols = set()
+	line_breaks = set()
+	raisebox = set()
 	include_with_scale = set()
 	wrapfigure = set()
 	minipages = set()
@@ -51,7 +59,10 @@ def parse(data, start):
 					count+=1
 			if count == 1:
 				uniitem_list.add(start+i)
-
+		if r"raisebox{" in data[i]:
+			raisebox.add(start+i)
+		if r"\\" in data[i]:
+			line_breaks.add(start+i)
 		if r"begin{enumerate}" in data[i] and "alph" in data[i]:
 			alph_items.add(start+i)
 		if r"begin{multicol" in data[i]:
@@ -82,6 +93,8 @@ def parse(data, start):
 	data = {
 		"URLs": sorted(urlUsage),
 		"Scaled graphics": sorted(include_with_scale),
+		"Line breaks": sorted(line_breaks),
+		"Raisebox": sorted(raisebox),
 		"Forced Items": sorted(item_forced),
 		"Lists with 1 item": sorted(uniitem_list),
 		"Alph Items": sorted(alph_items),

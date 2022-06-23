@@ -1,9 +1,12 @@
 # Handcrab
 
 # Version
-1.9.1
+2
 
-# Changelog
+# Changelog (V2+)
+Version 2 &mdash; Updated default command to work for BCC format. Conversion no longer adds `<h1>...</h1>` to the document. `\section` now produces an `h2` heading.
+
+# Changelog (V1-V1.9)
 Version 1.1 &mdash; Added update script
 
 Version 1.2 &mdash; Added `<hr />` to end of long descriptions
