@@ -25,6 +25,7 @@ function hideSeek(buttonId = 'longdesc'){
     x.style.display = 'block';
   else
     x.style.display = 'none';
+	return false;
   }
   </script>
 </head>
@@ -35,6 +36,14 @@ function hideSeek(buttonId = 'longdesc'){
 </header>
 <h2 id="Table-Environments">Table Environments</h2>
 <p>The following sections describe how to add additional formatting to HTML tables from the LaTeX</p>
+<p>It should be noted that these are not compatible with images because I am lazy. I could probably fix that if I found the time and energy, but ¯\_(ツ)_/¯. If you're interested in the reasoning, <a href="#" onclick="hideSeek('reason1')">click here</a></p>
+<div id="reason1" style="display: none;">
+<hr />
+<p>The reason is they both use the same search delimiter, <code>,,,,</code> to start and end their environment.</p>
+<p>So when handcrab goes to re-define a table, if there's an image, it will read the table's begin delimiter, <code>,,,,</code> as the start of the table, then the image's begin delimiter, <code>,,,,</code> and interpret it to be the table's end delimiter.</p>
+<p>Problem becomes, if I change the delimiters in any way, it means I won't be able to recompile previous files without having to modify them. The only immediate change I can think of would be to add a compilation parameter to signify using "old delimiters", and change the standard. But then that means having to update my documentation again, and that's always mildly annoying.</p>
+<hr />
+</div>
 <h3 id="row-table-environment">Row Table Environment</h3>
 <p>To write a table where the first entry in each row is a header, you
 surround the tabular environment with four commas, and add
@@ -93,9 +102,8 @@ class="sourceCode latex"><code class="sourceCode latex"><span id="cb3-1"><a href
 <p>The biggest thing to note is that the space after
 <code>!ALTMARKER!</code> is required to be there, even if the alt text
 is blank. Alternatively, you can replace <code>!ALTMARKER!</code> with
-<code>!NOALT!</code> to ensure a blank alt text. However, I’ve tested
-that once and then promptly forgot about it so I can’t remember if it
-actually works.</p>
+<code>!NOALT!</code> to ensure a blank alt text.</p>
+<p>To include <code>class="static"</code> in the image tag, use <code>!ALTMARKERS!</code> instead of <code>!ALTMARKER!</code>.</p>
 <h3 id="long-descriptions">Long Descriptions</h3>
 <p>Sometimes the alt text isn’t big enough to hold the entire
 description, or sometimes you want extra formatting within the alt text,

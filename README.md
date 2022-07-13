@@ -1,10 +1,16 @@
 # Handcrab
 
 # Version
-2
+2.1
 
 # Changelog (V2+)
 Version 2 &mdash; Updated default command to work for BCC format. Conversion no longer adds `<h1>...</h1>` to the document. `\section` now produces an `h2` heading.
+
+Version 2.1 &mdash; 
+-  Updated documentation. 
+- `\section` maps to `h1` now, but this can be changed using the `--heading-level` or `-hl` parameter.
+- Resource templates *should* be able to work without `<h1>Title</h1>`, if a static title is desired.
+- added `-math-circles-title` or `-mct` parameter for converting math circles resources (realistically it's to cover up old code with obfuscated and forgotten functionality.)
 
 # Changelog (V1-V1.9)
 Version 1.1 &mdash; Added update script

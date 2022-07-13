@@ -116,6 +116,7 @@ parser.add_argument("-i", "--input", help="path to input file")
 parser.add_argument("-o", "--output", help="path to output file")
 parser.add_argument("-rt", "--resource-template", default="HTML/Files/BCCTemplate.html",
 										help="path to resource template")
+parser.add_argument("-hl", "--heading-level", default="0", help="shift heading level")
 parser.add_argument("-s", "--save-pandoc", default="testfile.html", 
 										help="Saves the raw pandoc output file to given path")
 parser.add_argument("--version", help="Displays version number", action="store_true")
@@ -181,7 +182,11 @@ else:
 	if not os.path.isfile(restemp):
 		restemp = handcrab_path+"Templates/BCCTemplate.html"
 
-cmd = 'pandoc -f latex --mathjax --shift-heading-level-by=1 -t html "{}" -s -o "{}" --quiet'.format(filein, rawpandoc)
+headingLevel = args.heading_level
+if not headingLevel.isdigit():
+	headingLevel = "0"
+
+cmd = 'pandoc -f latex --mathjax --shift-heading-level-by={} -t html "{}" -s -o "{}" --quiet'.format(headingLevel, filein, rawpandoc)
 
 os.system(cmd)
 
@@ -220,6 +225,7 @@ bodyCode = newBodyCode[:]
 newBodyCode = bodyCode[:]
 
 if not math_circles_mode:
+	'''
 	list_item_tags = [m.start() for m in re.finditer("<li", bodyCode)]
 	for start in list_item_tags:
 		end = start+bodyCode[start:].find("</li")
@@ -227,7 +233,7 @@ if not math_circles_mode:
 		if "<p>" in substring:
 			newstring = substring.replace("<p>", "").replace("</p>", "")
 			newBodyCode = newBodyCode.replace(substring, newstring)
-
+	'''
 	ordered_list_tag = [m.start() for m in re.finditer('<ol type="A"', bodyCode)]
 	for start in ordered_list_tag:
 		end = start+bodyCode[start:].find(">")
@@ -236,9 +242,16 @@ if not math_circles_mode:
 		newBodyCode = newBodyCode.replace(substring, newstring)
 
 	bodyCode = newBodyCode[:]
-
 	newBodyCode = bodyCode[:]
 
+	ordered_list_tag = [m.start() for m in re.finditer("<ol class=", bodyCode)]
+	for start in ordered_list_tag:
+		end = start+bodyCode[start:].find("</ol")
+		subBody = bodyCode[start:end]
+		newSubBody = subBody[:].replace("<li><p>", "<li>").replace("</p></li>", "</li>")
+		newBodyCode = newBodyCode.replace(subBody, newSubBody)
+	bodyCode = newBodyCode[:]
+	newBodyCode = bodyCode[:]
 longDescMarkings = [m.start() for m in re.finditer(";;;;", bodyCode)]
 descIndex = 0
 for i in range(0, len(longDescMarkings), 2):
@@ -285,8 +298,8 @@ bodyCode = bodyCode.replace("unnumbered exsoln", "exsoln")
 with open(restemp, 'r') as f:
 	htmlFile = f.read()
 
-htmlFile = htmlFile.replace("<h1>Title</h1>", "")
-if math_circles_mode:
+if "<h1>Title</h1>" in htmlFile:
+	htmlFile = htmlFile.replace("<h1>Title</h1>", "")
 
 	title = filein[filein.rfind('/')+1:filein.rfind(".")]
 

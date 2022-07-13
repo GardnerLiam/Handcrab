@@ -15,9 +15,6 @@
      }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-  <!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
-  <![endif]-->
   <script>
 function hideSeek(buttonId = 'longdesc'){
   let x = document.getElementById(buttonId);
@@ -73,35 +70,53 @@ passable arguments. Those arguments are as follows:</p>
 file</td>
 </tr>
 <tr class="even">
+<td style="text-align: center;"><code>--heading-level</code></td>
+<td style="text-align: center;"><code>-hl</code></td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">Change which LaTeX heading level<br />is assigned to the <code>h1</code> heading.</td>
+</tr>
+<tr class="odd">
 <td style="text-align: center;"><code>--resource-template</code></td>
 <td style="text-align: center;"><code>-rt</code></td>
 <td style="text-align: center;">Yes</td>
 <td style="text-align: center;">Overrides path to resource template</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: center;"><code>--save-pandoc</code></td>
 <td style="text-align: center;"><code>-s</code></td>
 <td style="text-align: center;">Yes</td>
 <td style="text-align: center;">Saves the raw pandoc output to a
 provided path</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: center;"><code>--version</code></td>
 <td style="text-align: center;"></td>
 <td style="text-align: center;">Yes</td>
 <td style="text-align: center;">Displays current version number</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: center;"><code>--update</code></td>
 <td style="text-align: center;"></td>
 <td style="text-align: center;">Yes</td>
 <td style="text-align: center;">Updates to current version of handcrab</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: center;"><code>--docs</code></td>
 <td style="text-align: center;"></td>
 <td style="text-align: center;">Yes</td>
 <td style="text-align: center;">Opens the docs in your default browser</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>--appraise</code></td>
+<td style="text-align: center;"><code>-a</code></td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">Provides a list of all necessary changes<br />to the LaTeX file before conversion</td> 
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>--math-circle-title</code></td>
+<td style="text-align: center;"><code>-mct</code></td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">Follows the same conventions we used<br />when converting Math Circles resources</td>
 </tr>
 </tbody>
 </table>
@@ -118,16 +133,56 @@ you could run the following command: </p>
  </div>
 <p>Handcrab's default resource template is the <code>ResourceTemplate.html</code> file we were given originally.
 All templates can be found in the <code>handcrab/Templates/</code> folder, and have been modified in order to work with the script. If a resource template is passed with <code>-rt</code> that Handcrab does not understand, it will automatically use the default template.</p>
+<p>The <code>--heading-level</code> argument is 0 by default (if left out), and matches <code>\section</code> with the <code>h1</code> tag. The argument takes in an integer <i>n</i>, and shifts the headings in the HTML so that a level 1 heading in your input document is equivalent to a level-<i>n</i> heading in the HTML.</p>
+<p>For example, the following command will match all instances of <code>\section</code> to <code>h2</code> headers, <code>\subsection</code> to <code>h3</code> headers, <code>\subsubsection</code> to <code>h4</code> headers, and so on:
+<div class="center">
+<p><code>handcrab -i "Folder/MyInput.tex" -o "Folder2/MyOutput.html" -rt lesson -hl 1</code></p>
+</div>
 The <code>--save-pandoc</code> argument will create a file in the given path
 that only holds the unmodified pandoc output.</p>
 <p>Handcrab runs the following command:</p>
 <div class="center">
-<p><code>pandoc -f latex --mathjax -t html PATH_TO_INPUT -s -o TEMP_PATH --metadata title="..."</code></p>
+<p><code>pandoc -f latex --mathjax --shift-heading-level-by=HEADING_LEVEL -t html PATH_TO_INPUT -s -o TEMP_PATH --quiet</code></p>
 </div>
-<p>where <code>PATH_TO_OUTPUT</code> is the input path specified in the
-<code>--input</code> argument and <code>TEMP_PATH</code> is either the
+<p>where <code>HEADING_LEVEL</code> is dictated by the <code>--heading-level</code> argument,
+<code>PATH_TO_INPUT</code> is the input path specified in the
+<code>--input</code> argument, and <code>TEMP_PATH</code> is either the
 default or the path specified with the <code>--save-pandoc</code>
 argument.</p>
+<h3 id="appraising">Appraising</h3>
+<p>Appraising lets you view a LaTeX file's necessary changes before conversion. Using the <code>--appraise</code> or <code>-a</code> parameter will negate the use of an output, so <code>--output</code> or <code>-o</code> will either not produce anything, or it will crash. Appraising looks for everything in the following list.</p>
+<ul>
+	<li>URLs</li>
+	<li>Scaled graphics (graphics that don't use <code>width</code> to specify size)</li>
+	<li>Line breaks</li>
+	<li>Raisebox</li>
+	<li>Forced Items (lists that use <code>\item[n]</code> to specify enumeration)</li>
+	<li>Lists with 1 item</li>
+	<li>Alph Items (lists that use <code>label=(\alph*)</code>)</li>
+	<li>nested lists</li>
+	<li>fbox</li>
+	<li>multicols</li>
+	<li>wrapfigure</li>
+	<li>minipages</li>
+	<li>tikz</li>
+</ul>
+<p>Output from the command is entirely dependent on what appears in the file. For example, if the output is blank, nothing from the above list has been detected in the given file. A sample output can be seen below:</p>
+<div class="center">
+<code style="display: inline-block; text-align: left">
+Scaled graphics (5)
+	[11, 109, 110, 111, 112]
+Line breaks (17)
+	[14, 49, 56, 64, 66, 68, 70, 72, 78, 79, 80, 81, 82, 93, 108, 112, 119]
+Raisebox (4)
+	[6, 7, 8, 131]
+minipages (4)
+	[51, 54, 63, 77]
+
+</code>
+</div> 
+<p>Each displayed header has been found in the given LaTeX file, along with the number of times it's been detected, in parentheses. The line below is a list of every line number where it's been detected (to an accuracy of a few lines).</p>
+<p>For example, in the given file, four minipages have been found around lines 51, 54, 63, and 77.</p>
+<p>It should be noted that with environments (I.E. LaTeX commands that use <code>\begin{...}</code> and <code>\end{...}</code>), the line numbers record only the instances of the <code>\begin{...}</code>. This includes the enumerations and itemizes that are recorded.</p>
 <h2 id="installation">Installation</h2>
 <ol>
 	<li><p>To install handcrab, navigate to the <a href="https://github.com/GardnerLiam/Handcrab" target="_blank">Github page</a>, click the "Code" dropdown box, and click "Download Zip" at the bottom.</p></li>
@@ -149,7 +204,7 @@ argument.</p>
 <p>If the input file has an h1 header in it (I.E.  <code>\section{...}</code>), then handcrab should ideally replace i. with whatever is in the section. <strong> I am not confident that this works. If it doesn't, let me know.</strong></p>
 <p>The modified body from handcrab's output replaces ii.</p>
 <p>In other words. If those tags aren't in the templates, then it will not copy over the relevant information. If more than those tags are in the template, than the excess will also be copied over. This should typically not be a problem, as templates have been modified by me for this purpose. If you do want to add more templates, let me know.</p>
-
+<p>Templates do not necessarily require 
 <h2 id="Environments">Environments</h2>
 Handcrab offers extra conversion that pandoc doesn't do. The conversions are specified by Handcrab's environments. For documentation and examples, <a href="Environments.html">click here</a>
 
