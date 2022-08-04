@@ -1,0 +1,159 @@
+%Theme codes for 2021-2022 and on
+\newcommand{\Nthemecode}{N}
+\newcommand{\Gthemecode}{G}
+\newcommand{\Athemecode}{A}
+\newcommand{\Dthemecode}{D}
+\newcommand{\Cthemecode}{C}
+
+\newcommand{\Nthemefull}{Number Sense}
+\newcommand{\Gthemefull}{Geometry \& Measurement}
+\newcommand{\Athemefull}{Algebra}
+\newcommand{\Dthemefull}{Data Management}
+\newcommand{\Cthemefull}{Computational Thinking}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Strand codes for 2020-2021 year and previous
+\newcommand{\NNstrandcode}{NN}
+\newcommand{\MEstrandcode}{ME}
+\newcommand{\GSstrandcode}{GS}
+\newcommand{\PAstrandcode}{PA}
+\newcommand{\DPstrandcode}{DP}
+\newcommand{\MTstrandcode}{MT}
+\newcommand{\NAstrandcode}{NA}
+\newcommand{\RSstrandcode}{RS}
+\newcommand{\AEstrandcode}{AE}
+\newcommand{\CPstrandcode}{CP}
+\newcommand{\FCstrandcode}{FC}
+\newcommand{\GMstrandcode}{GM}
+\newcommand{\NPstrandcode}{NP}
+\newcommand{\LGstrandcode}{LG}
+
+\newcommand{\NNstrandfull}{Number Sense and Numeration}
+\newcommand{\MEstrandfull}{Measurement}
+\newcommand{\GSstrandfull}{Geometry and Spatial Sense}
+\newcommand{\PAstrandfull}{Patterning and Algebra}
+\newcommand{\DPstrandfull}{Data Management and Probability}
+\newcommand{\MTstrandfull}{Measurement and Trigonometry}
+\newcommand{\NAstrandfull}{Number Sense and Algebra}
+\newcommand{\RSstrandfull}{Relations/Systems}
+\newcommand{\AEstrandfull}{Algebra/Equations}
+\newcommand{\CPstrandfull}{Counting, Probability and Data Analysis}
+\newcommand{\FCstrandfull}{Functions (include Trig)}
+\newcommand{\GMstrandfull}{Geometry and Measurement}
+\newcommand{\NPstrandfull}{Number Theory and Proportions}
+\newcommand{\LGstrandfull}{Logic}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Theme/Strand name
+\newcommand{\strandfull}[1]{
+%%Themes
+	\ifnum\pdfstrcmp{#1}{\Nthemecode}=0
+		\Nthemefull
+	\else\ifnum\pdfstrcmp{#1}{\Gthemecode}=0
+		\Gthemefull
+	\else\ifnum\pdfstrcmp{#1}{\Athemecode}=0
+		\Athemefull
+	\else\ifnum\pdfstrcmp{#1}{\Dthemecode}=0
+		\Dthemefull
+	\else\ifnum\pdfstrcmp{#1}{\Cthemecode}=0
+		\Cthemefull
+%%%Strands
+	\else\ifnum\pdfstrcmp{#1}{\MEstrandcode}=0
+		\MEstrandfull
+	\else\ifnum\pdfstrcmp{#1}{\NNstrandcode}=0
+		\NNstrandfull
+	\else\ifnum\pdfstrcmp{#1}{\GSstrandcode}=0
+		\GSstrandfull
+	\else\ifnum\pdfstrcmp{#1}{\PAstrandcode}=0
+		\PAstrandfull
+	\else\ifnum\pdfstrcmp{#1}{\DPstrandcode}=0
+		\DPstrandfull
+	\else\ifnum\pdfstrcmp{#1}{\MTstrandcode}=0
+		\MTstrandfull
+	\else\ifnum\pdfstrcmp{#1}{\NAstrandcode}=0
+		\NAstrandfull
+	\else\ifnum\pdfstrcmp{#1}{\RSstrandcode}=0
+		\RSstrandfull
+	\else\ifnum\pdfstrcmp{#1}{\AEstrandcode}=0
+		\AEstrandfull
+	\else\ifnum\pdfstrcmp{#1}{\CPstrandcode}=0
+		\CPstrandfull
+	\else\ifnum\pdfstrcmp{#1}{\FCstrandcode}=0
+		\FCstrandfull
+	\else\ifnum\pdfstrcmp{#1}{\GMstrandcode}=0
+		\GMstrandfull
+	\else\ifnum\pdfstrcmp{#1}{\NPstrandcode}=0
+		\NPstrandfull
+	\else\ifnum\pdfstrcmp{#1}{\LGstrandcode}=0
+		\LGstrandfull
+	\else
+		NONE
+	\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi}
+
+	
+\newcommand {\mainstrandfull}{\strandfull{\mainstrand}}
+\newcommand {\secondarystrandfull} {\strandfull{\secondarystrand}}
+\newcommand {\tertiarystrandfull} {\strandfull{\tertiarystrand}}
+
+%%%John's user commands
+\newcommand{\dss}{\displaystyle}
+\newcommand{\vsp}{\vspace{.25in}}
+\newcommand{\vsptwo}{\vspace{.15in}}
+
+%% Font Styles
+\newcommand{\stdtitle}{\Large \bf}
+\newcommand{\smtitle}{\large \bf}
+\newcommand{\stdsubtitle}{\large \bf}
+\newcommand{\smsubtitle}{\normalsize \bf}
+\newcommand{\stdtext}{\large}
+\newcommand{\smtext}{\normalsize}
+\newcommand{\bigpic}{1}
+\newcommand{\smallpic}{0.3}
+
+%% Font sizes for problem and solution documents
+%% SAVESPACE is for saving space in both problem and solution documents
+%% NORMAL does not require saving space in either document
+%% SAVESPACE-S is for saving space in the solution part only
+
+\newcommand{\ptitlefont}{
+	\IfStrEq{\problemsize}{SAVESPACE}{\smtitle} {\stdtitle}} 
+
+\newcommand{\psubtitlefont}{
+	\IfStrEq{\problemsize}{SAVESPACE} {\smsubtitle}{\stdsubtitle}} 
+
+\newcommand{\pbodytextfont}{
+	\IfStrEq{\problemsize}{SAVESPACE} {\smtext}{\stdtext}} 
+	
+\newcommand{\ptitlespace}{
+	\IfStrEq{\problemsize}{SAVESPACE} {\\}{\\[1mm]}} 
+
+\newcommand{\ptitledblspace}{
+	\IfStrEq{\problemsize}{SAVESPACE} {\\[3mm]}{\\[6mm]}} 
+
+\newcommand{\stitlefont}{
+	\IfStrEq{\problemsize}{NORMAL} {\stdtitle}{\smtitle}} 
+
+\newcommand{\ssubtitlefont}{
+	\IfStrEq{\problemsize}{NORMAL} {\stdsubtitle}{\smsubtitle}} 
+
+\newcommand{\sbodytextfont}{
+	\IfStrEq{\problemsize}{NORMAL} {\stdtext}{\smtext}} 
+	
+\newcommand{\stitlespace}{
+	\IfStrEq{\problemsize}{NORMAL} {\\[1mm]}{\\}} 
+
+\newcommand{\stitledblspace}{
+	\IfStrEq{\problemsize}{NORMAL} {\\[6mm]}{\\[3mm]}} 
+
+% Tags to handle differences between the version of the problem as it
+% appears in the problem document and the solution document.
+
+% Tag to identify components of the problem description that should NOT appear
+% in the solution file version of the document.
+\newcommand{\problemonly}[1]{#1}
+
+% Tag to identify components of the that appear one way (the first argument) in the problem
+% pdf and a different way (the second argument) in the solution pdf. 
+\newcommand{\pstoggle}[2]{{\IfStrEq{\location}{PROB}{#1}{#2}}}

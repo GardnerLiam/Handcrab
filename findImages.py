@@ -7,7 +7,7 @@ def loadText(fname):
 	with open(fname, 'r') as f:
 		return f.read()
 
-def updateImages(text):
+def updateImages(text, image_folder=""):
 	rl = re.finditer("!IMAGE!((.|\n)*?)!IMAGE!", text)
 	for i in rl:
 		image = i.group(0)
@@ -19,9 +19,16 @@ def updateImages(text):
 			alt = i.group(0)
 			alt = alt[alt.find("!ALTMARKER!")+len("!ALTMARKER! "):]
 			image = image.replace('alt="image"', 'alt="{}"'.format(alt))
+		elif "NOALT" in i.group(0):
+			image = image.replace('alt="image"', 'alt=""')
 		else:
 			print(i.group(0))
-		image = image[:image.find("!ALTMARKER")]
+		if "!ALTMARKER" in image:
+			image = image[:image.find("!ALTMARKER")]
+		else:
+			image = image[:image.find("!NOALT")]
+		if len(image_folder) > 0:
+			image = image.replace('src="', 'src="{}/'.format(image_folder))
 		image = image.replace("!IMAGE!", "")
 		text = text.replace(i.group(0), image)
 	return text

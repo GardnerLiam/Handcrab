@@ -13,6 +13,12 @@ skeletons = {
 	"bccTeX": "BCCSkeleton.tex",
 	"bccFull": "BCCSkeleton.html",
 	"potm": "POTM.html",
+	"potw": "POTW.html",
+	"mcLesson": "MathCirclesLesson.html",
+	"mcProbset": "MathCirclesProblemSet.html",
+	"mcSoln": "MathCirclesSolution.html",
+	"ctmc": "CTMC.html",
+	"default": "default.html"
 }
 
 def loadText(fname):
@@ -42,13 +48,15 @@ def getFile(skeleton):
 	raise ValueError("{} is not a valid skeleton".format(skeleton))
 
 # should probably change templates to skeletons here
-def applySkeleton(text, skeleton, write=""):
+def applySkeleton(text, skeleton, write="", css=""):
 	skfile = getFile(skeleton)
 	with open(skfile, 'r') as f:
 		temp = f.read()
 	if skfile.endswith(".html"):
 		#updateCSS would be called here
 		temp = temp.replace("<p>Content</p>", grabBody(text))
+		if len(css) > 0:
+			temp = re.sub(r'@import url\("(.*?)"\)', r'@import url("{}")'.format(css), temp)
 	elif skfile.endswith(".tex"):
 		temp = temp.replace("%!CONTENT!%", grabTeXBody(text))
 	if len(write) > 0:

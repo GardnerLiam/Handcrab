@@ -57,6 +57,22 @@ searchTypes = {
 	"rowcol": ["<p>!ROWCOLTABLE!<\/p>((.|\n)*?)<p>!ROWCOLTABLE!<\/p>", "<p>!ROWCOLTABLE!</p>"]
 }
 
+def updateLaTeXTables(text):
+	rl = re.finditer(r"!ROWTABLE!((.|\n)*?)!ROWTABLE!", text)
+	for i in rl:
+		table = i.group(1)
+		newTable = table.replace("\hline", "")
+		group = i.group(0)
+		newGroup = group.replace(table, newTable)
+		text = text.replace(group, newGroup)
+	for i in re.finditer(r"!ROWCOLTABLE!((.|\n)*?)!ROWCOLTABLE!", text):
+		table = i.group(1)
+		newTable = table.replace("\hline", "")
+		group = i.group(0)
+		newGroup = group.replace(table, newTable)
+		text = text.replace(group, newGroup)
+	return text
+
 
 def updateTables(text, tableTypes=searchTypes): 
 	for t in tableTypes:

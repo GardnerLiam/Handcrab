@@ -35,7 +35,8 @@ def writeOneFile(config):
 	preprocessConfig = {
 		"input": None,
 		"TeXSkeleton": None,
-		"keep-minipages": None
+		"keep-minipages": None,
+		"preprocessing": [],
 	}
 
 	for value in config:
@@ -54,13 +55,23 @@ def writeOneFile(config):
 	# the below should really be combined in one file
 	text = updateLists(text)
 	text = updateTables(text)
-	text = updateImages(text)
+	if ("image-folder" in config and config["image-folder"] is not None):
+		text = updateImages(text, config["image-folder"])
+	else:
+		text = updateImages(text)
 	text = updateLongdesc(text)
 	text = text.replace("{aligned}", "{align*}")
+	if "postprocessing" in config:
+		for i in config["postprocessing"]:
+			text = i(text)
+
 
 	if config["output"] == "":
 		config["output"] = config["input"][:config["input"].rfind(".")]+".html"
 	#print(configName)
 	attemptDelete(configName)
 	attemptDelete(configName[:-4]+".html")
-	applySkeleton(text, config["skeleton"], write=config["output"])
+	if "css" in config:
+		applySkeleton(text, config["skeleton"], write=config["output"], css=config["css"])
+	else:
+		applySkeleton(text, config["skeleton"], write=config["output"])
