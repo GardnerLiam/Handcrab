@@ -111,14 +111,40 @@ def fixCTMCRelayCommand(text):
 		ctmcRelay = f.read()
 	return text.replace(text[start:end], ctmcRelay)
 
+def getCloseBracket(text, start):
+	count = 1
+	for i in range(start, len(text)):
+		if text[i] == "{":
+			count+=1
+		if text[i] == "}":
+			count-=1
+		if count == 0:
+			return i+1
+	return -1
 
 def fixCTMCSolutions(text):
 	if text == "":
 		return "fixCTMCSolutions"
 	if r"newcommand{\ans}" in text:
+		rl = re.finditer(r"(.*?)newcommand{\\ans}(.*?){", text, flags=re.MULTILINE)
+		for i in rl:
+			body = i.group(0)
+			start = text.find(body)+len(body)
+			end = getCloseBracket(text, start)
+			if end == -1:
+				print("Skipping:")
+				print(body)
+				continue
+			fullBody = text[text.find(body):end]
+			text = text.replace(fullBody, "")
+
 		preface = ["\\documentclass[a4paper]{article}",
 							 "\\begin{document}",
 							 "\\newcommand{\\ans}[1]{"+"\n\n"+"Answer: #1\n}\n"]
+		if "begin{document}" in text:
+			preface.pop(1)
+		if "documentclass" in text:
+			preface.pop(0)
 		preface = "\n".join(preface)
 		text = preface + re.sub(r"(.*?)newcommand{\\ans}(.*?)$", "", text, flags=re.MULTILINE)
 	return text

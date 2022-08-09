@@ -17,15 +17,19 @@ parser.add_argument("-hl", "--heading-level", help="shift heading level")
 parser.add_argument("-m", "--keep-minipages", help="Does not remove minipages", action="store_true")
 parser.add_argument("-if", "--image-folder", help="Provide location for images")
 parser.add_argument("-css", "--css", help="Path for CSS file")
+parser.add_argument("-n", "--title", default="", help="change the title tag in HTML")
 parser.add_argument("-V", "--verbose", help="Verbose mode", action="store_true")
 parser.add_argument("-v", "--version", help="Displays version number", action="store_true")
+parser.add_argument("-dhf", "--disable-helper-functions", help="disable template-specific modifications", action='store_true')
 parser.add_argument("--docs", help="Opens documentation in browser", action="store_true")
 args = parser.parse_args()
 
 config = {
 	'input': args.input,
 	'output': args.output,
-	'template': args.template.lower()
+	'template': args.template.lower(),
+	'dhf': args.disable_helper_functions,
+	'title': args.title
 }
 
 if len(args.skeleton) > 2 and isinstance(args.skeleton, list):
@@ -69,7 +73,6 @@ if (args.image_folder is not None):
 		config["image-folder"] = args.image_folder
 if (args.css is not None):
 	config["css"] = args.css
-
 
 '''
 Each template has two dictionaries,
@@ -176,6 +179,11 @@ for filename in config["input"]:
 	if config["template"] != None:
 		subParams = copy.deepcopy(params[config["template"]][0])
 		subConfig = {**subParams, **subConfig}
+		if (subConfig["dhf"]):
+			if "preprocessing" in subConfig:
+				subConfig["preprocessing"] = []
+			if "postprocessing" in subConfig:
+				subConfig["postprocessing"] = []
 		if "skeleton" in subParams and subConfig["skeleton"] == "default" and subParams["skeleton"] != "default":
 			subConfig["skeleton"] = subParams["skeleton"]
 	if ("outbyname" in subConfig and subConfig["outbyname"] == True):

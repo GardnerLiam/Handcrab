@@ -31,9 +31,12 @@ def grabBody(text):
 	return a[0][0]
 
 def grabTeXBody(text):
-	start = text.find(r"\bccSep{")
-	end = text.find(r"\end{document}")
-	return text[start:end]
+	if ("{document}" in text):
+		start = text.find(r"\bccSep{")
+		end = text.find(r"\end{document}")
+		return text[start:end]
+	else:
+		return text
 
 '''
 - probably path addition required?
@@ -47,16 +50,22 @@ def getFile(skeleton):
 	return skeleton
 	raise ValueError("{} is not a valid skeleton".format(skeleton))
 
-# should probably change templates to skeletons here
-def applySkeleton(text, skeleton, write="", css=""):
+def applySkeleton(text, skeleton, config, write=""):
 	skfile = getFile(skeleton)
 	with open(skfile, 'r') as f:
 		temp = f.read()
 	if skfile.endswith(".html"):
-		#updateCSS would be called here
 		temp = temp.replace("<p>Content</p>", grabBody(text))
-		if len(css) > 0:
-			temp = re.sub(r'@import url\("(.*?)"\)', r'@import url("{}")'.format(css), temp)
+		if "css" in config and len(config["css"]) > 0:
+			temp = re.sub(r'@import url\("(.*?)"\)', r'@import url("{}")'.format(config["css"]), temp)
+		if "title" in config and len(config["title"]) > 0:
+			temp = re.sub(r"<title>((.|\n)*?)<\/title>",
+										"<title>{}</title>".format(config["title"]), temp)
+		else:
+			title = re.search(r"<h1(.*?)>((.|\n)*?)<(\/h1|br)", text)
+			if (title is not None):
+				title = title.group(2)
+				temp = re.sub(r"<title>((.|\n)*?)<\/title>", "<title>{}</title>".format(title), temp)
 	elif skfile.endswith(".tex"):
 		temp = temp.replace("%!CONTENT!%", grabTeXBody(text))
 	if len(write) > 0:
@@ -64,3 +73,29 @@ def applySkeleton(text, skeleton, write="", css=""):
 			f.write(temp)
 	else:
 		return temp
+
+'''
+def applySkeleton(text, skeleton, write="", css="", title=""):
+	skfile = getFile(skeleton)
+	with open(skfile, 'r') as f:
+		temp = f.read()
+	if skfile.endswith(".html"):
+		temp = temp.replace("<p>Content</p>", grabBody(text))
+		if len(css) > 0:
+			temp = re.sub(r'@import url\("(.*?)"\)', r'@import url("{}")'.format(css), temp)
+		if len(title) == 0:
+			title = re.search(r"<h1>((.|\n)*?)<(br|\/h1)", text)
+			if (title is not None):
+				title = title.group(1)
+				temp = re.sub(r"<title>((.|\n)*?)<\/title>", "<title>{}</title>".format(title), temp)
+		else:
+			temp = re.sub(r"<title>((.|\n)*?)<\/title>", "<title>{}</title>".format(title), temp)
+
+	elif skfile.endswith(".tex"):
+		temp = temp.replace("%!CONTENT!%", grabTeXBody(text))
+	if len(write) > 0:
+		with open(write, 'w') as f:
+			f.write(temp)
+	else:
+		return temp
+'''

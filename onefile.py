@@ -36,6 +36,7 @@ def writeOneFile(config):
 		"input": None,
 		"TeXSkeleton": None,
 		"keep-minipages": None,
+		"image-folder": None,
 		"preprocessing": [],
 	}
 
@@ -71,7 +72,10 @@ def writeOneFile(config):
 	#print(configName)
 	attemptDelete(configName)
 	attemptDelete(configName[:-4]+".html")
+	applySkeleton(text, config["skeleton"], config, write=config["output"])
+	'''
 	if "css" in config:
 		applySkeleton(text, config["skeleton"], write=config["output"], css=config["css"])
 	else:
 		applySkeleton(text, config["skeleton"], write=config["output"])
+	'''
