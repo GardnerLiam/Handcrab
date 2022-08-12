@@ -1,5 +1,5 @@
 from preprocessing import process
-from findLists import updateLists
+from findLists import updateHTMLLists
 from findImages import updateImages
 from findTables import updateTables
 from findLongdesc import updateLongdesc
@@ -29,13 +29,15 @@ def combineFiles(config):
 		end = text.find("</body")
 		fileText.append(text[start:end])
 	text = "<body>\n"+"\n".join(fileText)+"</body>"
-	return applySkeleton(text, config["skeleton"], write=config["output"])
-	
+	return applySkeleton(text, config["skeleton"], config, write=config["output"])
+
 def writeOneFile(config):
 	preprocessConfig = {
 		"input": None,
 		"TeXSkeleton": None,
 		"keep-minipages": None,
+		"remove-phantom": False,
+		"merge-before": True,
 		"image-folder": None,
 		"preprocessing": [],
 	}
@@ -53,8 +55,9 @@ def writeOneFile(config):
 		print(output)
 	text = loadText(config2["output"])
 	
+
 	# the below should really be combined in one file
-	text = updateLists(text)
+	text = updateHTMLLists(text)
 	text = updateTables(text)
 	if ("image-folder" in config and config["image-folder"] is not None):
 		text = updateImages(text, config["image-folder"])
@@ -62,6 +65,9 @@ def writeOneFile(config):
 		text = updateImages(text)
 	text = updateLongdesc(text)
 	text = text.replace("{aligned}", "{align*}")
+	text = text.replace("{eqnarray}", "{align*}")
+	text = text.replace("{eqnarray*}", "{align*}")
+	text = text.replace("<p>!HRULE!</p>", '<hr style="border-top: solid 1px black">')
 	if "postprocessing" in config:
 		for i in config["postprocessing"]:
 			text = i(text)

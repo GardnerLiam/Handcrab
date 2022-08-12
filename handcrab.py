@@ -14,6 +14,7 @@ parser.add_argument("-o", "--output", default="", help="path to output file(s)")
 parser.add_argument("-s", "--skeleton", nargs="+", default="default", help="Path to skeleton")
 parser.add_argument("-t", "--template", default="default", help="template for file type (if exists)")
 parser.add_argument("-hl", "--heading-level", help="shift heading level")
+parser.add_argument("-p", "--remove-phantom", help="Removes \phantom", action="store_true")
 parser.add_argument("-m", "--keep-minipages", help="Does not remove minipages", action="store_true")
 parser.add_argument("-if", "--image-folder", help="Provide location for images")
 parser.add_argument("-css", "--css", help="Path for CSS file")
@@ -28,6 +29,7 @@ config = {
 	'input': args.input,
 	'output': args.output,
 	'template': args.template.lower(),
+	'remove-phantom': args.remove_phantom,
 	'dhf': args.disable_helper_functions,
 	'title': args.title
 }
@@ -109,6 +111,7 @@ params = {
 	"potm": [
 					{
 						"keep-minipages": False,
+						"highest-heading-level": 0,
 						"skeleton": 'potm',
 						"verbose": False
 					}
@@ -151,6 +154,19 @@ params = {
 			"skeleton": "potw",
 			"preprocessing": [fixPOTWInput],
 			"postprocessing": [fixPOTWNoTheme, fixPOTWNoImage, fixPOTWTheme]
+		}
+	],
+	"gauss": [
+		{
+			"highest-heading-level": 0,
+			"keep-minipages": False,
+			"image-folder": "../Diagrams/",
+			"verbose": False,
+			"skeleton": "gaussContest",
+			"TeXSkeleton": "gaussTeX",
+			"merge-before": False,
+			"preprocessing": [gaussPostdocPreambleKiller, gaussSectionFixer],
+			"postskeletonprocessing": [gaussTitleFixer]
 		}
 	]
 }

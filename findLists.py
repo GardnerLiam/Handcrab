@@ -1,26 +1,7 @@
-import string
 import re
+import string
 
-TYPES = []
-
-def makeType(pre, an, post, index):
-	listType = ["lower-alpha", "upper-alpha", "decimal"][an]
-
-	css = "ol.NAME { counter-reset: list list-item; }\n\n"
-	css += "ol.NAME li { list-style: none; padding: 7px 0px;}\n\n"
-	css += "ol.NAME li:before { \n"
-	css += '\tcontent: " {}" counter(list, {}) "{} ";\n'.format(pre, listType, post)
-	css += '\tcounter-increment: list;\n}'
-	return css.replace("NAME", "CLT{}".format(index))
-
-def makeCSS():
-	text = '<style type="text/css">\n'
-	for i in range(len(TYPES)):
-		pre, an, post = TYPES[i]
-		l = makeType(pre, an, post, i)+"\n"
-		text += l
-	text += "</style>"
-	return text
+rreplace = lambda s,old,new,count: new.join(s.rsplit(old,count))
 
 def surroundQuestion(text):
 	areas = re.finditer(r"\\bccBox{Question}{((.|\n)*?)\\bccBox", text)
@@ -37,70 +18,186 @@ def surroundQuestion(text):
 		text = text.replace(en, newText)
 	return text
 
-def updateEnumerate(text):
-	rl = re.finditer(r"\\begin{enumerate}\[((.*?)([a-zA-Z0-9]+)(.*?))\]((.|\n)*?)\\end{enumerate}", 
-									text)
-	for i in rl:
+def matchString(text, pos, start, end):
+	l1 = len(start)
+	l2 = len(end)
+	if text[pos:pos+l1] == start:
+		pos+=l1+1
+	count = 1
+	for i in range(pos, len(text)-max(l1,l2)):
+		if text[i:i+l1] == start:
+			count+=1
+		if text[i:i+l2] == end:
+			count -= 1
+		if count == 0:
+			return i+l2
+	if text[-l2:] == end and count == 1:
+		return len(text)
+
+def parseBrackets(bracket):
+	enumType = re.search("([^a-zA-Z0-9\n]+)?([a-zA-Z0-9]+)([^a-zA-Z0-9\n]+)?", bracket)
+	if enumType is not None:
+		enumType = enumType.group(2)
+	value = 0
+	if enumType in string.ascii_lowercase:
+		value = string.ascii_lowercase.find(enumType)+1
+		enumType = "a"
+	elif enumType in string.ascii_uppercase:
+		value = string.ascii_uppercase.find(enumType)+1
+		enumType = "A"
+	elif enumType.isnumeric():
+		value = enumType[:]
+		enumType = "1"
+	return (enumType, value)
+
+def getSublists(text):
+	'''
+	given: \begin{...}(...)\end{...}
+	extracts locations of nested enumeration 
+	'''
+	subLists = []
+	for i in re.finditer(r"\\begin{(enumerate|itemize)}", text):
+		s = i.start()
+		enumType = i.group(1)
+		matchStart = "\\begin{"+enumType+"}"
+		matchEnd = "\\end{"+enumType+"}"
+		e = matchString(text,s,matchStart,matchEnd)
+		subLists.append((s,e))
+	if subLists[0][0] == 0:
+		subLists = subLists[1:]
+	return subLists
+
+def fixItemize(text):
+	'''
+	given \\begin{itemize}(...)\end{itemize}
+	if \item[] is found, replace itemize with enumerate
+	'''
+	beginning = re.search(r"\\begin{itemize}\[(.*?)\]", text)
+	if beginning is not None:
+		if beginning.start() == 0:
+			textCopy = text.replace("\\begin{itemize}", "\\begin{enumerate}", 1)
+			textCopy = rreplace(textCopy, "\\end{itemize}", "\\end{enumerate}", 1)
+			return textCopy
+
+	subLists = getSublists(text)
+	textCopy = text[:]
+	for i in re.finditer(r"\\item\[(.*?)\]", text):
+		if len(subLists) > 0:
+			if True in [a[0] <= i.start() and i.start() <= a[1] for a in subLists]:
+				continue
+		enumType, value = parseBrackets(i.group(1))
+		if enumType == 'a':
+			enumType = string.ascii_lowercase[value]
+		elif enumType == "A":
+			enumType = string.ascii_uppercase[value]
+		elif enumType == '1':
+			enumType = str(value)
+		textCopy = textCopy.replace("\\begin{itemize}", "\\begin{enumerate}", 1)
+		textCopy = rreplace(textCopy, "\\end{itemize}", "\\end{enumerate}", 1)
+	return textCopy
+
+def modItems(text):
+	'''
+	given \begin{enumerate}(...)\end{enumerate}
+	modifies \item[...]
+	'''
+	subLists = getSublists(text)
+	textCopy = text[:]
+	for i in re.finditer(r"\\item\[(.*?)\]", text):
+		if len(subLists) > 0:
+			if True in [a[0] <= i.start() and i.start() <= a[1] for a in subLists]:
+				continue
+		enumType, value = parseBrackets(i.group(1))
+		textCopy = textCopy.replace(i.group(0), "\\item !VALUE! {} {}".format(enumType, value))
+	return textCopy
+
+def modStarts(text):
+	'''
+	given \begin{enumerate}(...)\end{enumerate}
+	adds !STARTENUM!/!ENDENUM! around text if necessary
+	'''
+
+	beginning = re.search(r"\\begin{enumerate}\[(.*?)\]", text)
+	if beginning is None:
+		return text
+	if beginning.start() != 0:
+		return text
+	enumType, value = parseBrackets(beginning.group(1))	
+	textCopy = "\n!STARTENUM! {} {}\n".format(enumType, value)+text
+	if textCopy[-1] == "\n":
+		textCopy += "!ENDENUM!\n"
+	else:
+		textCopy += "\n!ENDENUM!\n"
+	return textCopy
+
+def parseListStarts(text):
+	textCopy = text[:]
+	for i in re.finditer(r"!STARTENUM!", text):
+		s = i.start()
+		e = matchString(text, s, "!STARTENUM!", "!ENDENUM!")
+		body = text[s:e]
+		enumType, value  = body.split("\n")[0].split(" ")[1:]
+		value = value[:value.find("<")]
+		
+		olStart = body.find("<ol")
+		if olStart == -1:
+			print(body)
+			body = body.replace("!STARTENUM! {} {}".format(enumType, value), "", 1)
+			body = rreplace(body, "!ENDENUM!", "", 1)
+
+			textCopy = textCopy.replace(text[s:e], body)
+			continue
+
+		olEnd = matchString(body[olStart:],	0, "<", ">")+olStart
+		ol = body[olStart:olEnd]
+		
+		body = body.replace(ol, '<ol type="{}" start="{}">'.format(enumType, value), 1)
+		body = body.replace("!STARTENUM! {} {}".format(enumType, value), "", 1)
+		body = rreplace(body, "!ENDENUM!", "", 1)
+
+		textCopy = textCopy.replace(text[s:e], body)
+	return re.sub(r"<p>\s+<\/p>", "", textCopy)
+
+def parseListValues(text):
+	textCopy = text[:]
+	for i in re.finditer(r"<li><p>!VALUE! (.*?) (.*?) (.*?)<\/p><\/li>", text, flags=re.DOTALL):
+		enumType = i.group(1)
+		value = i.group(2)
 		body = i.group(0)
-		preSpecify = i.group(2)
-		postSpecify = i.group(4)
-		alphaNumeric = i.group(3)
+		body = body.replace("<li><p>!VALUE! {} {}".format(enumType, value),
+												'<li value="{}" type="{}"><p>'.format(value, enumType))
+		textCopy = textCopy.replace(i.group(0), body)
+	return textCopy
 
-		if alphaNumeric.lower() != "a" or alphaNumeric.lower() != "1":
-			index = 1
-			header = ""
-			if alphaNumeric.isnumeric() and int(alphaNumeric) > 1:
-				index = int(alphaNumeric)
-				header = "\n!VALUE! {}\n".format(alphaNumeric)
-			else:
-				if alphaNumeric in string.ascii_lowercase:
-					index = string.ascii_lowercase.find(alphaNumeric)+1
-				elif alphaNumeric in string.ascii_uppercase:
-					index = string.ascii_uppercase.find(alphaNumeric)+1
-				if (index != 1):
-					header = "\n!VALUE! {}\n".format(index)
-			if index != 1:
-				if body[-1] == "\n":
-					text = text.replace(body, header+body+"!VALUE!\n")
-				else:
-					text = text.replace(body, header+body+"\n!VALUE!\n")
-	return text
 
-def updateOrderedList(text):
-	rl = re.finditer(r"<p>!VALUE! (.*?)<\/p>((.|\n)*?)<p>!VALUE!<\/p>", text)
-	for i in rl:
-		whole = i.group(0)
-		ind = i.group(1)
-		body = i.group(2)
-		newBody = body.replace("<li", '<li value="{}"'.format(ind), 1)
-		text = text.replace(whole, newBody)
-	rl = re.finditer(r"<p>!CSSTYPE! (.*?)<\/p>((.|\n)*?)<p>!CSSTYPE!<\/p>", text)
-	for i in rl:
-		whole = i.group(0)
-		ind = i.group(1)
-		body = i.group(2)
-		newBody = re.sub("<ol type=(.*?)>", "<ol>", body)
-		newBody = newBody.replace("<ol>", '<ol class="CLT{}">'.format(ind))
-		newBody = re.sub(r"<li(.*?)><p>((.|\n)*?)<\/p><\/li>", r"<li\1>\2</li>", newBody, re.MULTILINE)
-		text = text.replace(whole, newBody)
+def updateTeXLists(text):
+	textCopy = text[:]
+	for i in re.finditer(r"\\begin{itemize}", text):
+		s = i.start()
+		end = matchString(text, s, "\\begin{itemize}", "\\end{itemize}")
+		textCopy = textCopy.replace(text[s:end], fixItemize(text[s:end]))
+	text = textCopy[:]
+
+	textCopy = text[:]
+	for i in re.finditer(r"\\begin{enumerate}", text):
+		s = i.start()
+		end = matchString(text, s, "\\begin{enumerate}", "\\end{enumerate}")
+		textCopy = textCopy.replace(text[s:end], modItems(text[s:end]))
+	text = textCopy[:]
+	textCopy = text[:]
+	for i in re.finditer(r"\\begin{enumerate}", text):
+		s = i.start()
+		end = matchString(text, s, "\\begin{enumerate}", "\\end{enumerate}")
+		textCopy = textCopy.replace(text[s:end], modStarts(text[s:end]))
+	return textCopy
+
+def updateHTMLLists(text):
+	text = parseListValues(parseListStarts(text))
 	rl = re.finditer(r"<p>!OPTIONS!</p>((.|\n)*?)<p>!OPTIONS!</p>", text)
 	for i in rl:
 		newText = i.group(1)
-		newText = newText.replace('ol type="A"', 'ol class="mc"')
+		newText = newText.replace('ol type="A" start="1"', 'ol class="mc"')
 		newText = newText.replace("<li><p>", "<li>")
 		newText = newText.replace("</p></li>", "</li>")
-		text = text.replace(i.group(0), newText)
+		text = text.replace(i.group(0), newText)	
 	return text
-
-def updateCSS(text):
-	if len(TYPES) == 0:
-		return text
-	css = makeCSS()+"\n</head>"
-	return text.replace("</head>", css)
-
-def updateLists(text):
-	return updateOrderedList(text)
-
-def updateTeX(text):
-	return updateEnumerate(text)
-

@@ -1,9 +1,10 @@
-from findLists import updateTeX, surroundQuestion
+from findLists import surroundQuestion, updateTeXLists 
 from skeleton import applySkeleton
 from findTables import updateLaTeXTables
 
 import os
 import re
+import sys
 import copy
 import time
 import random
@@ -23,6 +24,8 @@ def tmpWrite(text, path=""):
 	return os.path.join(path, base_name)
 
 applyWhenMerge = ["fixPOTWInput", "removeCTMCHeader"]
+applyPreMerge = ["gaussPostdocPreambleKiller"]
+
 
 def merge(fname, functions=[], imageDir="."):
 	if not fname.endswith(".tex"):
@@ -41,13 +44,32 @@ def merge(fname, functions=[], imageDir="."):
 		text = text.replace(r"\input{"+i+"}", "\n"+merge(i, functions, imageDir)+"\n")
 	return text
 
-def process(config):
+def parseBoxes(text):
+	boxName = r"\box{"
+	start = text.find(boxName)
+	if start == -1:
+		return text
+	end = start
+	count = 1
+	saveString = ""
+	for i in range(start+len(boxName), len(text)):
+		saveString+=text[i]
+		if text[i] == "{":
+			count+=1
+		if text[i] == "}":
+			count-=1
+		if count == 0:
+			end = i
+			break
+	saveString = saveString[:-1]
+	return parseBoxes(text.replace(text[start:end+1], saveString))
+
+def mergeAll(filename, config):
 	imdir = "." if config["image-folder"] is None else config["image-folder"]
 	if config["preprocessing"] is not None:
-		text = merge(config["input"], config["preprocessing"], imdir) 
+			text = merge(filename, config["preprocessing"], imdir) 
 	else: 
-		text = merge(config["input"], imageDir=imdir)
-
+		text = merge(filename, imageDir=imdir)
 	while len(re.findall(r"\\input{(.*?)}", text)) != 0:
 		tmpName = tmpWrite(text)
 		if config["preprocessing"] is not None:
@@ -55,20 +77,60 @@ def process(config):
 		else:
 			text = merge(tmpName)
 		os.remove(tmpName)
-	
-	if (config["TeXSkeleton"] != None):
-		text = applySkeleton(text, config["TeXSkeleton"], config)
+	return text
 
+def process(config):
+	text = loadText(config["input"])
+	if config["merge-before"]:
+		fname = tmpWrite(text)
+		text = mergeAll(fname, config)
+		os.remove(fname)
+		if (config["TeXSkeleton"] != None):
+			text = applySkeleton(text, config["TeXSkeleton"], config)
+	else:
+		text = re.sub(r"(^|\s)%(.*)$", '', text, flags=re.MULTILINE)
+		for i in config["preprocessing"]:
+			if i("") in applyPreMerge:
+				text = i(text)
+		if (config["TeXSkeleton"] != None):
+			text = applySkeleton(text, config["TeXSkeleton"], config)
+		if ("\\input" in text):
+			fname = tmpWrite(text)
+			text = mergeAll(fname, config)
+			os.remove(fname)
 	if not config["keep-minipages"]:
 		text = re.sub(r"\\(begin|end){minipage}((\[((.|\n)*?)\])?{((.|\n)*?)})?",
-									"", text, flags=re.DOTALL)
+									"", text, flags=re.MULTILINE)
 
+	text = re.sub(r"\\(v|h)space{(.*?)}", " ", text, flags=re.MULTILINE)
 	# remove raisebox and fbox
-	text = re.sub(r"\\raisebox{(.*?)}{((.|\n)*?)}", r"\2", text)
-	text = re.sub(r"\\fbox{((.|\n)*?)}", r"\1", text)
+	text = re.sub(r"\\raisebox{(.*?)}(\[(.*?)\])?(\[(.*?)\])?", r"\\box", text, flags=re.DOTALL)
+	text = re.sub(r"\\parbox(\[(.*?)\])?{(.*?)}", r"\\box", text, flags=re.DOTALL)
+	text = re.sub(r"\\fbox", r"\box", text)
 	
+	text = parseBoxes(text)
+
+	for rl in re.finditer(r"\\begin{eqnarray\*}(.*?)\\end{eqnarray\*}", text, flags=re.DOTALL):
+		body = rl.group(1)
+		m = re.search("&(.*?)&", body, flags=re.DOTALL)
+		if m is not None:
+			m = m.group(0)
+			body = body.replace(m, m[:-1])
+		text = text.replace(rl.group(1), body)
+	for rl in re.finditer(r"\\begin{eqnarray}(.*?)\\end{eqnarray}", text, flags=re.DOTALL):
+		body = rl.group(1)
+		m = re.search("&(.*?)&", body, flags=re.DOTALL)
+		if m is not None:
+			m = m.group(0)
+			body = body.replace(m, m[:-1])
+		text = text.replace(rl.group(1), body)
+
+
+	text = re.sub(r"\\\\\[(.*?)\]", "\n\n", text)
+
 	# remove phantom characters
-	text = re.sub(r"\\phantom{(.*?)}", "", text, flags=re.MULTILINE)
+	if not config["remove-phantom"]:	
+		text = re.sub(r"\\phantom{(.*?)}", "", text, flags=re.MULTILINE)
 
 	# remove graphicspath
 	text = re.sub(r"\\graphicspath{(.*)}", "", text, flags=re.MULTILINE)
@@ -86,14 +148,20 @@ def process(config):
 	text = re.sub(r"\\begin{itemize}\[label=\(\\Alph\*\)\]",
 								r"\begin{enumerate}[A.]",
 								text, re.MULTILINE)
-	
+
+	for rl in re.finditer(r"\\includegraphics\[(.*?)\]{(.*?)}", text):
+		size = rl.group(1)
+		if not (size.startswith("width=") or size.startswith("height=")):
+			newImage = r"\includegraphics[width=0.3\textwidth]{"+rl.group(2)+"}"
+			text = text.replace(rl.group(0), newImage)
+
 	## Place images on newline
 	text = re.sub(r"(\S+)\\includegraphics\[(.*?)\]{(.*?)}((\s|\n)*?)",
 								r"\1\n\\includegraphics[\2]{\3}",
 								text, flags=re.MULTILINE)
 
 	## Remove whitespace before image
-	text = re.sub(r"^([^\n]\s+)\\includegraphics",
+	text = re.sub(r"[^\S\r\n]+\\includegraphics",
 								r"\\includegraphics", text, flags=re.MULTILINE)
 		
 
@@ -114,6 +182,12 @@ def process(config):
 		r"\\includegraphics{\1}\n!ALTMARKER image!\n",
 		text, flags=re.MULTILINE)
 
+	text = re.sub(r"(.*)$(^|(\s.*?))!ROW(COL)?TABLE!",
+								r"\1\n\2\n\n!ROW\4TABLE!", text, flags=re.MULTILINE)
+	
+	text = re.sub("!ROW(COL)?TABLE!(.*?)\n(.*?)$", r"!ROW\1TABLE!\n\n\2\n\3",
+								text, flags=re.MULTILINE)
+
 	text = re.sub(r"(.*)$(^|(\s.*?))!LONGDESC!",
 								r"\1\n\n!LONGDESC!",
 								text,
@@ -123,17 +197,17 @@ def process(config):
 								r"!LONGDESC! \1\n\n\2",
 								text,
 								flags=re.MULTILINE)
-	text = updateTeX(text)
-	text = updateLaTeXTables(text)
 	for i in config['preprocessing']:
-		if i('') not in applyWhenMerge:
+		if i('') not in applyWhenMerge and i('') not in applyPreMerge:
 			text = i(text)
+	
+	text = updateLaTeXTables(text)
 	if config["TeXSkeleton"] is not None and "bcc" in config["TeXSkeleton"]:
 		text = surroundQuestion(text)
-	
-	
-		
 
+	body = text[text.find("\\begin{document"):text.find("\\end{document")]
+	newBody = updateTeXLists(body)
+	text = text.replace(body, newBody)
 	preMarked = []
 	for i in re.finditer(r"\\includegraphics(\[(.*?)\])?{(.*?)}\n!ALTMARKERS! (.*)\n", text):
 		s = i.group(0)
