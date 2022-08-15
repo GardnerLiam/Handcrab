@@ -1,6 +1,5 @@
 import re
 import os
-from findLists import updateCSS
 
 EXE_LOCATION = os.path.dirname( os.path.realpath( __file__ ) )
 
@@ -18,6 +17,9 @@ skeletons = {
 	"mcProbset": "MathCirclesProblemSet.html",
 	"mcSoln": "MathCirclesSolution.html",
 	"ctmc": "CTMC.html",
+	"gaussTeX": "GaussContest.tex",
+	"gaussContest": "GaussContest.html",
+	"gaussSolnTeX": "GaussSolution.tex",
 	"default": "default.html"
 }
 
@@ -32,7 +34,9 @@ def grabBody(text):
 
 def grabTeXBody(text):
 	if ("{document}" in text):
-		start = text.find(r"\bccSep{")
+		start = text.find(r"\begin{document}")+len(r"\begin{document}")
+		if r"\bccSep{" in text:
+			start = text.find(r"\bccSep{")
 		end = text.find(r"\end{document}")
 		return text[start:end]
 	else:
@@ -66,6 +70,9 @@ def applySkeleton(text, skeleton, config, write=""):
 			if (title is not None):
 				title = title.group(2)
 				temp = re.sub(r"<title>((.|\n)*?)<\/title>", "<title>{}</title>".format(title), temp)
+		if "postskeletonprocessing" in config and len(config["postskeletonprocessing"]) > 0:
+			for i in config["postskeletonprocessing"]:
+				temp = i(temp)
 	elif skfile.endswith(".tex"):
 		temp = temp.replace("%!CONTENT!%", grabTeXBody(text))
 	if len(write) > 0:
@@ -74,28 +81,4 @@ def applySkeleton(text, skeleton, config, write=""):
 	else:
 		return temp
 
-'''
-def applySkeleton(text, skeleton, write="", css="", title=""):
-	skfile = getFile(skeleton)
-	with open(skfile, 'r') as f:
-		temp = f.read()
-	if skfile.endswith(".html"):
-		temp = temp.replace("<p>Content</p>", grabBody(text))
-		if len(css) > 0:
-			temp = re.sub(r'@import url\("(.*?)"\)', r'@import url("{}")'.format(css), temp)
-		if len(title) == 0:
-			title = re.search(r"<h1>((.|\n)*?)<(br|\/h1)", text)
-			if (title is not None):
-				title = title.group(1)
-				temp = re.sub(r"<title>((.|\n)*?)<\/title>", "<title>{}</title>".format(title), temp)
-		else:
-			temp = re.sub(r"<title>((.|\n)*?)<\/title>", "<title>{}</title>".format(title), temp)
 
-	elif skfile.endswith(".tex"):
-		temp = temp.replace("%!CONTENT!%", grabTeXBody(text))
-	if len(write) > 0:
-		with open(write, 'w') as f:
-			f.write(temp)
-	else:
-		return temp
-'''

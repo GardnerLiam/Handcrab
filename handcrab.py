@@ -168,6 +168,19 @@ params = {
 			"preprocessing": [gaussPostdocPreambleKiller, gaussSectionFixer],
 			"postskeletonprocessing": [gaussTitleFixer]
 		}
+	],
+	"gausssoln": [
+		{
+			"highest-heading-level": 0,
+			"keep-minipages": False,
+			"image-folder": "../Diagrams/",
+			"verbose": False,
+			"skeleton": "gaussContest",
+			"TeXSkeleton": "gaussSolnTeX",
+			"merge-before": False,
+			"preprocessing": [gaussSolnFixer],
+			"postskeletonprocessing": [gaussTitleFixer]
+		}
 	]
 }
 

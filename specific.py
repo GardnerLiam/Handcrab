@@ -1,5 +1,6 @@
 import re
 import os
+import sys
 
 
 EXE_LOCATION = os.path.dirname( os.path.realpath( __file__ ) )
@@ -121,6 +122,90 @@ def getCloseBracket(text, start):
 		if count == 0:
 			return i+1
 	return -1
+
+def gaussPostdocPreambleKiller(text):
+	if text == "":
+		return "gaussPostdocPreambleKiller"
+	start = text.find("\\begin{document}")
+	if start == -1:
+		return text
+
+	sub = text[start:]
+	q = sub.find("{\\Gaussfront")
+	while q != -1:
+		q = sub.find("{\\Gaussfront")
+		end = getCloseBracket(sub, q+1)
+		sub = sub.replace(sub[q:end], "")
+		break
+	text = text.replace(text[start:], sub)
+
+	text = re.sub(r"\\ifthenelse(.*?)$", "", text, flags=re.MULTILINE)
+	sectionTemplate = "\\subsection{Part X: Each correct answer is worth Y.}"
+
+	for i in re.finditer(r"{\\part.(.?)}(\n?){\\part(.)}", text):
+		partTitle = i.group(3).upper()
+		points = {"A":"5", "B":"6", "C":"8"}[partTitle]
+		text = text.replace(i.group(0), sectionTemplate.replace("X", partTitle).replace("Y", points))
+
+	##TO REMOVE
+	text = text.replace(".pdf", ".svg")
+	text = text.replace("\\end{MCQ}", "")
+	return text
+
+def gaussSectionFixer(text):
+	if text == "":
+		return "gaussSectionFixer"
+	firstTime = True
+	count = 1
+	for i in re.finditer(r"\\subsection{(.*?)}(.*?)(?=(\\subsection{(.*?)}|\\end))", text, flags=re.DOTALL):
+		if firstTime:
+			text = text.replace(i.group(0), r"\subsection{"+i.group(1)+"}\n\\begin{enumerate}\n"+i.group(2))
+			count = i.group(0).count("\\mc")+1
+			firstTime = False
+			continue
+		new = "\\end{enumerate}\n!HRULE!\n"
+		new += "\\subsection{"+i.group(1)+"}\n\n\\begin{enumerate}["+str(count)+".]\n\n"+i.group(2)
+		count += i.group(0).count("\\mc")
+		text = text.replace(i.group(0), new)
+	return text
+
+def gaussTitleFixer(text):
+	if text == "":
+		return "gaussTitleFixer"
+	title = re.search(r"<h1(.*?)?>(....) (.*?)<(\/(div|section)|h2)", text, flags=re.DOTALL)
+	if title is not None:
+		year = title.group(2)
+		headerCharacteristic = title.group(1)
+		if headerCharacteristic is None:
+			headerCharacteristic = ""
+		fullTitle = "<h1"+headerCharacteristic+">"+year+" "+title.group(3)
+		text = text.replace(fullTitle, "")
+		text = text.replace("!!!TITLECONTENT!!!", fullTitle)
+		text = text.replace("&copy;YYYY University of Waterloo", "&copy;"+year+" University of Waterloo")
+	return text
+
+def gaussSolnFixer(text):
+	if text == "":
+		return "gaussSolnFixer"
+	text = re.sub(r"\\input{(.*?)TemplateFiles(.*?)}", "", text)
+	text = re.sub(r"\\ifthenelse(.*?)$", "", text, flags=re.MULTILINE)
+	text = re.sub(r"\\(begin|end){GA}", "", text)
+	start = [m.start() for m in re.finditer(r"(.*?)Grade 7(.*?)$", text, flags=re.MULTILINE)][0]
+	potential = [m.start() for m in re.finditer(r"(.*?)7\\ieme(.*?)$", text, flags=re.MULTILINE)]
+	potential += [m.start() for m in re.finditer(r"(\\begin{center}(.*?))?\\section{(.*?)}",
+																							text, flags=re.DOTALL)]
+	if len(potential) > 0:
+		start = min(start, potential[0]) 
+	end = [m.start()+len(m.group(0)) for m in 
+				re.finditer(r"(.*?)\\end{itemize}(.*?)$", text, flags=re.MULTILINE)][-1]
+	
+	subText = text[start:end+1]
+	#subText = re.sub(r"{(.*?)\\(begin|end){itemize}(.*?)}",
+	#									r"{\1\n\3}\n\\\2{itemize}", subText, flags=re.DOTALL)
+	#subText = re.sub(r"{(\s+)?}", "", subText)
+
+	text = "\\begin{document}\n"+subText+"\n\\end{document}"
+	return text
 
 def fixCTMCSolutions(text):
 	if text == "":

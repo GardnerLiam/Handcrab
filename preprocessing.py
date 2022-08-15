@@ -24,7 +24,7 @@ def tmpWrite(text, path=""):
 	return os.path.join(path, base_name)
 
 applyWhenMerge = ["fixPOTWInput", "removeCTMCHeader"]
-applyPreMerge = ["gaussPostdocPreambleKiller"]
+applyPreMerge = ["gaussPostdocPreambleKiller", "gaussSolnFixer"]
 
 
 def merge(fname, functions=[], imageDir="."):
@@ -107,6 +107,7 @@ def process(config):
 	text = re.sub(r"\\raisebox{(.*?)}(\[(.*?)\])?(\[(.*?)\])?", r"\\box", text, flags=re.DOTALL)
 	text = re.sub(r"\\parbox(\[(.*?)\])?{(.*?)}", r"\\box", text, flags=re.DOTALL)
 	text = re.sub(r"\\fbox", r"\box", text)
+	text = re.sub(r"\\item\[\$\\bullet\$\]", r"\\item", text)
 	
 	text = parseBoxes(text)
 
