@@ -54,7 +54,6 @@ def writeOneFile(config):
 	if len(output) > 0:
 		print(output)
 	text = loadText(config2["output"])
-	
 
 	# the below should really be combined in one file
 	text = updateHTMLLists(text)

@@ -181,16 +181,69 @@ params = {
 			"preprocessing": [gaussSolnFixer],
 			"postskeletonprocessing": [gaussTitleFixer]
 		}
-	]
+	],
+	"pcf": [
+		{
+			"highest-heading-level": 0,
+			"keep-minipages": False,
+			"image-folder": "../Diagrams/",
+			"verbose": False,
+			"skeleton": "PCFContest",
+			"TeXSkeleton": "gaussTeX",
+			"merge-before": False,
+			"preprocessing": [gaussPostdocPreambleKiller, gaussSectionFixer],
+			"postskeletonprocessing": [gaussTitleFixer]
+		}
+	],
+	"pcfsoln": [
+		{
+			"highest-heading-level": 0,
+			"keep-minipages": False,
+			"image-folder": "../Diagrams/",
+			"verbose": False,
+			"skeleton": "pcfContest",
+			"TeXSkeleton": "pcfSolnTeX",
+			"merge-before": False,
+			"preprocessing": [euclidSolnFixer],
+			"postskeletonprocessing": [gaussTitleFixer]
+
+		}
+	],
+	"euclid": [
+		{
+			"highest-heading-level": 0,
+			"keep-minipages": False,
+			"image-folder": "../Diagrams/E/",
+			"verbose": False,
+			"skeleton": "euclidContest",
+			"TeXSkeleton": "euclidTeX",
+			"merge-before": False,
+			"preprocessing": [frontCoverRemover, euclidItemization],
+			"postskeletonprocessing": [gaussTitleFixer]
+		}
+	],
+	"euclidsoln": [
+		{
+			"highest-heading-level": 0,
+			"keep-minipages": False,
+			"image-folder": "../Diagrams/E/",
+			"verbose": False,
+			"skeleton": "euclidContest",
+			"TeXSkeleton": "euclidTeX",
+			"merge-before": False,
+			"preprocessing": [euclidSolnFixer],
+			"postskeletonprocessing": [gaussTitleFixer]
+		}
+	],
 }
 
 
 ordered = [0,0]
 if config["template"] == "mathcircles":
 	for filename in config["input"]:
-		if 'probset' in filename.lower() or 'problemset' in filename.lower():
+		if 'probset' in filename.lower().replace(" ", "") or 'problemset' in filename.lower().replace(" ", ""):
 			ordered[0]+=1
-		elif 'soln' in filename.lower():
+		elif 'soln' in filename.lower().replace(" ", "") or "solution" in filename.lower().replace(" ", ""):
 			ordered[1]+=1
 if ordered[0] == 1 and ordered[1] == 1:
 	ordered = True
@@ -208,18 +261,24 @@ for filename in config["input"]:
 	if config["template"] != None:
 		subParams = copy.deepcopy(params[config["template"]][0])
 		subConfig = {**subParams, **subConfig}
+		if "pcf" in config["template"]:
+			subConfig["postskeletonprocessing"].append(pcfTitleSpecifier(filename))
+
 		if (subConfig["dhf"]):
 			if "preprocessing" in subConfig:
 				subConfig["preprocessing"] = []
 			if "postprocessing" in subConfig:
 				subConfig["postprocessing"] = []
+			if "postskeletonprocessing" in subConfig:
+				subConfig["postskeletonprocessing"] = []
 		if "skeleton" in subParams and subConfig["skeleton"] == "default" and subParams["skeleton"] != "default":
 			subConfig["skeleton"] = subParams["skeleton"]
+		
 	if ("outbyname" in subConfig and subConfig["outbyname"] == True):
 		if ordered:
-			if "problemset" in filename.lower():
+			if "problemset" in filename.lower().replace(" ", ""):
 				subConfig["skeleton"] = "mcProbset"
-			elif "soln" in filename.lower():
+			elif "soln" in filename.lower().replace(" ", "") or "solution" in filename.lower().replace(" ", ""):
 				subConfig["skeleton"] = "mcSoln"
 			else:
 				subConfig["skeleton"] = "mcLesson"

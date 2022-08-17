@@ -3,6 +3,25 @@ import string
 
 rreplace = lambda s,old,new,count: new.join(s.rsplit(old,count))
 
+lowerAlpha = string.ascii_lowercase[:8]+string.ascii_lowercase[9:]
+upperAlpha = string.ascii_uppercase[:8]+string.ascii_uppercase[8:]
+lowerRoman = ["x", "i", "ii", "iii", "iv", "v"]
+lowerRoman += [i[::-1] for i in lowerRoman if i[::-1] not in lowerRoman]
+upperRoman = ["X", "I", "II", "III", "IV", "V"]
+upperRoman += [i[::-1] for i in upperRoman if i[::-1] not in upperRoman]
+
+def int_to_Roman(num):
+	val = [1000,900,500,400,100,90,50,40,10,9,5,4,1]
+	syb = ["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"]
+	roman_num = ''
+	i = 0
+	while num>0:
+		for _ in range(num//val[i]):
+			roman_num += syb[i]
+			num -= val[i]
+		i+=1
+	return roman_num
+
 def surroundQuestion(text):
 	areas = re.finditer(r"\\bccBox{Question}{((.|\n)*?)\\bccBox", text)
 	for e1 in areas:
@@ -34,17 +53,29 @@ def matchString(text, pos, start, end):
 	if text[-l2:] == end and count == 1:
 		return len(text)
 
+def bruteForceRoman(val):
+	for i in range(1,1000):
+		if int_to_Roman(i).casefold() == val.casefold():
+			return i
+	return 1
+
 def parseBrackets(bracket):
 	enumType = re.search("([^a-zA-Z0-9\n]+)?([a-zA-Z0-9]+)([^a-zA-Z0-9\n]+)?", bracket)
 	if enumType is not None:
 		enumType = enumType.group(2)
 	value = 0
-	if enumType in string.ascii_lowercase:
+	if enumType in lowerAlpha:
 		value = string.ascii_lowercase.find(enumType)+1
 		enumType = "a"
-	elif enumType in string.ascii_uppercase:
+	elif enumType in upperAlpha:
 		value = string.ascii_uppercase.find(enumType)+1
 		enumType = "A"
+	elif enumType in lowerRoman:
+		value = bruteForceRoman(enumType)
+		enumType = "i"
+	elif enumType in upperRoman:
+		value = bruteForceRoman(enumType)
+		enumType = "I"
 	elif enumType.isnumeric():
 		value = enumType[:]
 		enumType = "1"
@@ -90,6 +121,10 @@ def fixItemize(text):
 			enumType = string.ascii_lowercase[value]
 		elif enumType == "A":
 			enumType = string.ascii_uppercase[value]
+		elif enumType == "i":
+			enumType = int_to_Roman(value).lower()
+		elif enumType == "I":
+			enumType = int_to_Roman(value)
 		elif enumType == '1':
 			enumType = str(value)
 		textCopy = textCopy.replace("\\begin{itemize}", "\\begin{enumerate}", 1)
@@ -160,7 +195,7 @@ def parseListStarts(text):
 
 def parseListValues(text):
 	textCopy = text[:]
-	for i in re.finditer(r"<li><p>!VALUE! (.*?) (.*?) (.*?)<\/p><\/li>", text, flags=re.DOTALL):
+	for i in re.finditer(r"<li><p>!VALUE! (.*?) (.*?) (.*?)<\/li>", text, flags=re.DOTALL):
 		enumType = i.group(1)
 		value = i.group(2)
 		body = i.group(0)
@@ -193,11 +228,17 @@ def updateTeXLists(text):
 
 def updateHTMLLists(text):
 	text = parseListValues(parseListStarts(text))
-	rl = re.finditer(r"<p>!OPTIONS!</p>((.|\n)*?)<p>!OPTIONS!</p>", text)
+	rl = re.finditer(r"<p>!OPTIONS!<\/p>((.|\n)*?)<p>!OPTIONS!</p>", text)
 	for i in rl:
 		newText = i.group(1)
 		newText = newText.replace('ol type="A" start="1"', 'ol class="mc"')
 		newText = newText.replace("<li><p>", "<li>")
 		newText = newText.replace("</p></li>", "</li>")
 		text = text.replace(i.group(0), newText)	
+	for i in re.finditer(r"<p>!HORIZONTAL!<\/p>(.*?)<p>!HORIZONTAL!<\/p>", text, flags=re.DOTALL):
+		newText = i.group(1)
+		newText = re.sub("<ol(.*?)>", '<ol class="horizontal">', newText, 1)
+		newText = newText.replace("<li><p>", "<li>")
+		newText = newText.replace("</p></li>", "</li>")
+		text = text.replace(i.group(0), newText)
 	return text

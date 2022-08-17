@@ -7,7 +7,7 @@ EXE_LOCATION = os.path.dirname( os.path.realpath( __file__ ) )
 # skeleton ==> base file, contains HTML preamble.
 
 skeletons = {
-	"cccProblem": "CCCProblemTemplate.html",
+	"cccProblem": "CCCProblem.html",
 	"cccFull": "CCCSkeletonFull.html",
 	"bccTeX": "BCCSkeleton.tex",
 	"bccFull": "BCCSkeleton.html",
@@ -17,9 +17,14 @@ skeletons = {
 	"mcProbset": "MathCirclesProblemSet.html",
 	"mcSoln": "MathCirclesSolution.html",
 	"ctmc": "CTMC.html",
-	"gaussTeX": "GaussContest.tex",
+	"gaussTeX": "GaussPCFContest.tex",
+	"pcfTeX": "GaussPCFContest.tex",
 	"gaussContest": "GaussContest.html",
-	"gaussSolnTeX": "GaussSolution.tex",
+	"gaussSolnTeX": "GaussPCFSolution.tex",
+	"pcfSolnTeX": "GaussPCFSolution.tex",
+	"pcfContest":"PCFContest.html", 
+	"euclidTeX": "EuclidContest.tex",
+	"euclidContest": "EuclidContest.html",
 	"default": "default.html"
 }
 
@@ -73,6 +78,7 @@ def applySkeleton(text, skeleton, config, write=""):
 		if "postskeletonprocessing" in config and len(config["postskeletonprocessing"]) > 0:
 			for i in config["postskeletonprocessing"]:
 				temp = i(temp)
+		temp = re.sub(r"<p>(\s+)?<\/p>", "", temp)
 	elif skfile.endswith(".tex"):
 		temp = temp.replace("%!CONTENT!%", grabTeXBody(text))
 	if len(write) > 0:

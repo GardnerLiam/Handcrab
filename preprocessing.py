@@ -24,7 +24,7 @@ def tmpWrite(text, path=""):
 	return os.path.join(path, base_name)
 
 applyWhenMerge = ["fixPOTWInput", "removeCTMCHeader"]
-applyPreMerge = ["gaussPostdocPreambleKiller", "gaussSolnFixer"]
+applyPreMerge = ["gaussPostdocPreambleKiller", "gaussSolnFixer", "frontCoverRemover", "euclidSolnFixer"]
 
 
 def merge(fname, functions=[], imageDir="."):
@@ -102,12 +102,15 @@ def process(config):
 		text = re.sub(r"\\(begin|end){minipage}((\[((.|\n)*?)\])?{((.|\n)*?)})?",
 									"", text, flags=re.MULTILINE)
 
+	text = re.sub(r"\\(begin|end){flush(left|right|top|bottom)}", "", text, flags=re.MULTILINE)
+
 	text = re.sub(r"\\(v|h)space{(.*?)}", " ", text, flags=re.MULTILINE)
 	# remove raisebox and fbox
 	text = re.sub(r"\\raisebox{(.*?)}(\[(.*?)\])?(\[(.*?)\])?", r"\\box", text, flags=re.DOTALL)
 	text = re.sub(r"\\parbox(\[(.*?)\])?{(.*?)}", r"\\box", text, flags=re.DOTALL)
-	text = re.sub(r"\\fbox", r"\box", text)
-	text = re.sub(r"\\item\[\$\\bullet\$\]", r"\\item", text)
+	text = re.sub(r"\\fbox", r"\\box", text)
+	text = re.sub(r"\\framebox(\[.*?\])?(\[.*?\])?", r"\\box", text)
+	text = re.sub(r"\\item\[\$\\bullet\$.?\]", r"\\item", text)
 	
 	text = parseBoxes(text)
 
@@ -130,24 +133,24 @@ def process(config):
 	text = re.sub(r"\\\\\[(.*?)\]", "\n\n", text)
 
 	# remove phantom characters
-	if not config["remove-phantom"]:	
+	if config["remove-phantom"]:	
 		text = re.sub(r"\\phantom{(.*?)}", "", text, flags=re.MULTILINE)
 
 	# remove graphicspath
 	text = re.sub(r"\\graphicspath{(.*)}", "", text, flags=re.MULTILINE)
 	# remove aleph listing (forces itemize to enumerate if that was ever an issue)
 	text = re.sub(r"\\begin{enumerate}\[label=\(\\alph\*\)\]",
-								r"\begin{enumerate}[a.]",
+								r"\\begin{enumerate}[a.]",
 								text, re.MULTILINE)
 	text = re.sub(r"\\begin{enumerate}\[label=\(\\Alph\*\)\]",
-								r"\begin{enumerate}[A.]",
+								r"\\begin{enumerate}[A.]",
 								text, re.MULTILINE)
 	
 	text = re.sub(r"\\begin{itemize}\[label=\(\\alph\*\)\]",
-								r"\begin{enumerate}[a.]",
+								r"\\begin{enumerate}[a.]",
 								text, re.MULTILINE)
 	text = re.sub(r"\\begin{itemize}\[label=\(\\Alph\*\)\]",
-								r"\begin{enumerate}[A.]",
+								r"\\begin{enumerate}[A.]",
 								text, re.MULTILINE)
 
 	for rl in re.finditer(r"\\includegraphics\[(.*?)\]{(.*?)}", text):
@@ -156,6 +159,9 @@ def process(config):
 			newImage = r"\includegraphics[width=0.3\textwidth]{"+rl.group(2)+"}"
 			text = text.replace(rl.group(0), newImage)
 
+	
+	text = re.sub(r"\\includegraphics{(.*?)}", r"\\includegraphics[width=0.3\\textwidth]{\1}", text)
+	
 	## Place images on newline
 	text = re.sub(r"(\S+)\\includegraphics\[(.*?)\]{(.*?)}((\s|\n)*?)",
 								r"\1\n\\includegraphics[\2]{\3}",
@@ -176,11 +182,11 @@ def process(config):
 # find all non-images and add !NOIMAGE!
 	text = re.sub(
 		r"\\includegraphics\[(.*?)\]{(.*?)}(?!\n(\s+)?(!ALTMARKER!|!ALTMARKERS!|!NOALT!))",
-		r"\\includegraphics[\1]{\2}\n!ALTMARKER! image", text, flags=re.MULTILINE)
+		r"\\includegraphics[\1]{\2}\n!NOALT! ", text, flags=re.MULTILINE)
 	
 	text = re.sub(
 		r"\\includegraphics{(.*?)}(?!\n(\s+)?(!ALTMARKER!|!ALTMARKERS!|!NOALT!))",
-		r"\\includegraphics{\1}\n!ALTMARKER image!\n",
+		r"\\includegraphics{\1}\n!NOALT!\n",
 		text, flags=re.MULTILINE)
 
 	text = re.sub(r"(.*)$(^|(\s.*?))!ROW(COL)?TABLE!",
@@ -209,39 +215,15 @@ def process(config):
 	body = text[text.find("\\begin{document"):text.find("\\end{document")]
 	newBody = updateTeXLists(body)
 	text = text.replace(body, newBody)
-	preMarked = []
-	for i in re.finditer(r"\\includegraphics(\[(.*?)\])?{(.*?)}\n!ALTMARKERS! (.*)\n", text):
-		s = i.group(0)
-		preMarked.append(s)
-	preMarked = set(preMarked)
-	for i in preMarked:
-		if i[-1] == "\n":
-			text = text.replace(i, "!IMAGE!\n"+i+"!IMAGE!\n")
-		else:
-			text = text.replace(i, "!IMAGE!\n"+i+"\n!IMAGE!\n")
 
-	
-	preMarked = []
-	for i in re.finditer(r"\\includegraphics(\[(.*?)\])?{(.*?)}\n!ALTMARKER![^}\n]+", text):
-		s = i.group(0)
-		preMarked.append(s)
-	preMarked = set(preMarked)
-	for i in preMarked:
-		if i[-1] == "\n":
-			text = text.replace(i, "!IMAGE!\n"+i+"!IMAGE!\n")
-		else:
-			text = text.replace(i, "!IMAGE!\n"+i+"\n!IMAGE!\n")
+	text = re.sub(r"(\\includegraphics(\[(.*?)\])?{(.*?)}\n!ALTMARKER(S?)![^}\n\\&]+(\\\&)?[^&])",
+								r"!IMAGE!\n\1\n!IMAGE!\n", text)
 
-	preMarked = []
-	for i in re.finditer(r"\\includegraphics(\[(.*?)\])?{(.*?)}\n!NOALT!(.*)\n", text):
-		s = i.group(0)
-		preMarked.append(s)
-	preMarked = set(preMarked)
-	for i in preMarked:
-		if i[-1] == "\n":
-			text = text.replace(i, "!IMAGE!\n"+i+"!IMAGE!\n")
-		else:
-			text = text.replace(i, "!IMAGE!\n"+i+"\n!IMAGE!\n")
+	text = re.sub(r"(\\includegraphics(\[(.*?)\])?{(.*?)}\n!NOALT(S?)!([^}\n\\&]+)?)",
+								r"!IMAGE!\n\1\n!IMAGE!\n", text)
+
+	text = re.sub(r"\\hfill ?{", r"\\box{", text)
+	text = parseBoxes(text)
 
 	if "nowrite" in config and config["nowrite"] == True:
 		return text

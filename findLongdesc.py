@@ -18,7 +18,7 @@ def updateLongdesc(text):
 		longdesc = '<button onclick="hideSeek(\'{}\')" style="box-shadow: none;">{}</button>'.format(name, buttonText)
 		longdesc += "\n"
 		longdesc += '<div id="{}" style="display: none;">'.format(name)
-		longdesc += "\n"+contents+"<hr /></div>"
+		longdesc += "\n"+contents+'<hr class="longdesc"/></div>'
 		text = text.replace(s, longdesc)
 		c+=1
 	return text
