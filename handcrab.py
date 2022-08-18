@@ -22,6 +22,9 @@ parser.add_argument("-n", "--title", default="", help="change the title tag in H
 parser.add_argument("-dt", "--disable-tikz", help="Does not convert tikz to svg", action="store_true")
 parser.add_argument("-rf", "--remove-flush", help="Removes any flushleft/flushright calls", action="store_true")
 parser.add_argument("-V", "--verbose", help="Verbose mode", action="store_true")
+parser.add_argument("-k", "--keep-markers", help="Does not remove accidental markers. May make errors harder to find", action="store_true")
+parser.add_argument("-dhf", "--disable-helper-functions", help="disable template-specific modifications", action='store_true')
+
 parser.add_argument("-dhf", "--disable-helper-functions", help="disable template-specific modifications", action='store_true')
 args = parser.parse_args()
 
@@ -31,6 +34,7 @@ config = {
 	'template': args.template.lower(),
 	'remove-phantom': args.remove_phantom,
 	'dhf': args.disable_helper_functions,
+	"keep-markers": args.keep_markers,
 	'title': args.title,
 	"disable-tikz": args.disable_tikz,
 	"remove-flush": args.remove_flush
