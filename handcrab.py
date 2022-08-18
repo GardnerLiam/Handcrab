@@ -19,10 +19,13 @@ parser.add_argument("-m", "--keep-minipages", help="Does not remove minipages", 
 parser.add_argument("-if", "--image-folder", help="Provide location for images")
 parser.add_argument("-css", "--css", help="Path for CSS file")
 parser.add_argument("-n", "--title", default="", help="change the title tag in HTML")
+parser.add_argument("-dt", "--disable-tikz", help="Does not convert tikz to svg", action="store_true")
+parser.add_argument("-rf", "--remove-flush", help="Removes any flushleft/flushright calls", action="store_true")
 parser.add_argument("-V", "--verbose", help="Verbose mode", action="store_true")
 parser.add_argument("-k", "--keep-markers", help="Does not remove accidental markers. May make errors harder to find", action="store_true")
 parser.add_argument("-dhf", "--disable-helper-functions", help="disable template-specific modifications", action='store_true')
 
+parser.add_argument("-dhf", "--disable-helper-functions", help="disable template-specific modifications", action='store_true')
 args = parser.parse_args()
 
 config = {
@@ -32,7 +35,9 @@ config = {
 	'remove-phantom': args.remove_phantom,
 	'dhf': args.disable_helper_functions,
 	"keep-markers": args.keep_markers,
-	'title': args.title
+	'title': args.title,
+	"disable-tikz": args.disable_tikz,
+	"remove-flush": args.remove_flush
 }
 
 if len(args.skeleton) > 2 and isinstance(args.skeleton, list):
@@ -92,7 +97,7 @@ params = {
 						{
 							"files": [],
 							"output": "",		
-							"skeleton": "cccFull"
+							"skeleton": "default"
 						}
 					],
 	"ccc": [
@@ -251,6 +256,7 @@ if ordered[0] == 1 and ordered[1] == 1:
 else:
 	ordered = False
 
+
 outputFiles = []
 count = 0
 for filename in config["input"]:
@@ -258,7 +264,7 @@ for filename in config["input"]:
 	if "template" in subConfig:
 		subConfig.pop("template")
 	subConfig["input"] = filename
-	subConfig["output"] = "" 
+	subConfig["output"] = ""
 	if config["template"] != None:
 		subParams = copy.deepcopy(params[config["template"]][0])
 		subConfig = {**subParams, **subConfig}
@@ -294,16 +300,20 @@ for filename in config["input"]:
 	outputFiles.append(subConfig["output"])
 	count+=1
 
-if config["template"] == 'ccc' or (config["template"] == "default" and len(args.input) > 1):
-	subConfig = copy.deepcopy(params[config["template"]][1])
+if config["template"] == 'ccc' or (config["template"] == "default"
+																	and len(args.input) > 1
+																	and not os.path.isdir(config["output"])):
+	subParams = copy.deepcopy(params[config["template"]][1])
+	subConfig = {**subParams, **subConfig}
 	subConfig["files"] = outputFiles
-	subConfig["output"] = config["output"]
+	
 	combineFiles(subConfig)
-elif len(config["output"]) == 0:
+elif len(config["output"]) == 0 or os.path.isdir(config["output"]):
 	for i in range(len(outputFiles)):
 		curOutname = outputFiles[i]
 		curInname = config["input"][i]
-		newOutname = curInname[:curInname.rfind(".")]+".html"
+		newOutname = os.path.join(config["output"], curInname[:curInname.rfind(".")]+".html")
+		print(newOutname)
 		os.rename(curOutname, newOutname)
 else:
 	if len(config["output"]) > 0:
