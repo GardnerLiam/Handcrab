@@ -7,6 +7,7 @@ from skeleton import applySkeleton
 from compile import run
 
 import copy
+import re
 import os
 
 def loadText(fname):
@@ -71,9 +72,14 @@ def writeOneFile(config):
 		for i in config["postprocessing"]:
 			text = i(text)
 
-
 	if config["output"] == "":
 		config["output"] = config["input"][:config["input"].rfind(".")]+".html"
+	if not config["keep-markers"]:
+		text = re.sub(r"!STARTENUM! (.*?) (.*?)( |\n)", "", text)
+		text = re.sub(r"!ENDENUM!", "", text)
+		text = re.sub(r"!VALUE! (.*?) (.*?)( |\n)", "", text)
+		text = re.sub(r"!(NOALT|ALTMARKER)(S)?!", "", text)
+
 	#print(configName)
 	attemptDelete(configName)
 	attemptDelete(configName[:-4]+".html")

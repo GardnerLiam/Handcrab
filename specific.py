@@ -123,22 +123,35 @@ def getCloseBracket(text, start):
 			return i+1
 	return -1
 
+def frontCoverRemover(text):
+	if text == "":
+		return "frontCoverRemover"
+
+	start = text.find("\\begin{document}")
+	if start == -1:
+		return text
+	sub = text[start:]
+	q = [m.start() for m in re.finditer(r"{\\.*?front", sub)]
+	while len(q) > 0:
+		end = getCloseBracket(sub, q[0]+1)
+		sub = sub.replace(sub[q[0]:end], "")
+		q = [m.start() for m in re.finditer(r"{\\.*?front", sub)]
+	text = text.replace(text[start:], sub)
+
+
+	
+	text = re.sub(r"\\ifthenelse.*?$", "", text, flags=re.MULTILINE)
+	text = re.sub(r"{\\.*?backcover.*?$", "", text, flags=re.MULTILINE)
+	return text
+
 def gaussPostdocPreambleKiller(text):
 	if text == "":
 		return "gaussPostdocPreambleKiller"
 	start = text.find("\\begin{document}")
 	if start == -1:
 		return text
-
-	sub = text[start:]
-	q = sub.find("{\\Gaussfront")
-	while q != -1:
-		q = sub.find("{\\Gaussfront")
-		end = getCloseBracket(sub, q+1)
-		sub = sub.replace(sub[q:end], "")
-		break
-	text = text.replace(text[start:], sub)
-
+	text = frontCoverRemover(text)
+	
 	text = re.sub(r"\\ifthenelse(.*?)$", "", text, flags=re.MULTILINE)
 	sectionTemplate = "\\subsection{Part X: Each correct answer is worth Y.}"
 
@@ -147,8 +160,12 @@ def gaussPostdocPreambleKiller(text):
 		points = {"A":"5", "B":"6", "C":"8"}[partTitle]
 		text = text.replace(i.group(0), sectionTemplate.replace("X", partTitle).replace("Y", points))
 
-	##TO REMOVE
-	text = text.replace(".pdf", ".svg")
+	if ("\\subsection{Part A" not in text):
+		start = text.find("\\mc")
+		sc = sectionTemplate.replace("X", "A").replace("Y", "5")+'\n'
+		text = text[:start]+sc+text[start:]	
+		#text = text[:start] + sectionTemplate.replace("X", "A").replace("Y", "5")+"\n"+text[:start]
+
 	text = text.replace("\\end{MCQ}", "")
 	return text
 
@@ -157,7 +174,8 @@ def gaussSectionFixer(text):
 		return "gaussSectionFixer"
 	firstTime = True
 	count = 1
-	for i in re.finditer(r"\\subsection{(.*?)}(.*?)(?=(\\subsection{(.*?)}|\\end))", text, flags=re.DOTALL):
+	for i in re.finditer(r"\\subsection{(.*?)}(.*?)(?=(\\subsection{(.*?)}|\\end{enumerate}))",
+					text, flags=re.DOTALL):
 		if firstTime:
 			text = text.replace(i.group(0), r"\subsection{"+i.group(1)+"}\n\\begin{enumerate}\n"+i.group(2))
 			count = i.group(0).count("\\mc")+1
@@ -184,6 +202,13 @@ def gaussTitleFixer(text):
 		text = text.replace("&copy;YYYY University of Waterloo", "&copy;"+year+" University of Waterloo")
 	return text
 
+def pcfTitleFixer(text, currentContest="CURRENTCONTEST", nextContest="NEXTCONTEST"):
+	if text == "":
+		return "pcfTitleFixer"
+	text = text.replace("!CONTESTCURRENT!", currentContest)
+	text = text.replace("!CONTESTNEXT!", nextContest)
+	return text
+
 def gaussSolnFixer(text):
 	if text == "":
 		return "gaussSolnFixer"
@@ -206,6 +231,63 @@ def gaussSolnFixer(text):
 
 	text = "\\begin{document}\n"+subText+"\n\\end{document}"
 	return text
+
+def euclidSolnFixer(text):
+	if text == "":
+		return "euclidSolnFixer"
+	text = re.sub(r"\\input{(.*?)TemplateFiles(.*?)}", "", text)
+	text = re.sub(r"\\ifthenelse(.*?)$", "", text, flags=re.MULTILINE)
+	
+	text = re.sub(r"{\\(begin|end){(enumerate|itemize)}}", r"\\\1{\2}", text)
+	text = re.sub(r"{\\(begin|end){GA}}", "", text)
+
+	s1 = text.find("\\begin{center}")
+	s2 = text.find("\\begin{itemize}")
+
+	if s1 == -1:
+		s1 = len(text)
+	if s2 == -1:
+		s2 = len(text)
+
+	start = min(s1, s2)
+	text = "\\begin{document}\n"+text[start:]
+	return text
+
+def euclidItemization(text):
+	if text == "":
+		return "euclidItemization"
+	start = text.find("\\begin{document}")
+	body = text[start:]
+	body = re.sub(r"\\item\[([0-9]+)\](.*?)(?=((\\item\[[0-9]+\])|\\end{INST}))",
+								r"\\item[\1] \n\\begin{enumerate}[a]\n\2\n\\end{enumerate}\n",
+								body, flags=re.DOTALL)
+	text = text.replace(text[start:], body)
+	text = re.sub(r"\\(begin|end){INST}", "", text)
+
+	title = re.search(r"\\begin{center}(.*?)\\section{", text, flags=re.DOTALL)
+	if title is not None:
+		title = title.start()
+		end = title+text[title:].find("\\end{center}")+len("\\end{center}")
+
+		if title > start+text[start:].find("\\begin{enumerate}"):
+			fullTitle = text[title:end]
+			text = text.replace(fullTitle, "")
+			text = text.replace("\\begin{document}", "\\begin{document}\n"+fullTitle)
+	
+
+	return text
+
+
+
+def pcfTitleSpecifier(filename):
+	if "cayley" in filename.lower():
+		return lambda text: pcfTitleFixer(text, "Cayley", "Galois")
+	elif "pascal" in filename.lower():
+		return lambda text: pcfTitleFixer(text, "Pascal", "Fryer")
+	elif "fermat" in filename.lower():
+		return lambda text: pcfTitleFixer(text, "Fermat", "Hypatia")
+	return pcfTitleFixer 
+
 
 def fixCTMCSolutions(text):
 	if text == "":

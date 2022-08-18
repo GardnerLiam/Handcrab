@@ -179,7 +179,6 @@ def parseListStarts(text):
 			print(body)
 			body = body.replace("!STARTENUM! {} {}".format(enumType, value), "", 1)
 			body = rreplace(body, "!ENDENUM!", "", 1)
-
 			textCopy = textCopy.replace(text[s:e], body)
 			continue
 
@@ -195,13 +194,15 @@ def parseListStarts(text):
 
 def parseListValues(text):
 	textCopy = text[:]
-	for i in re.finditer(r"<li><p>!VALUE! (.*?) (.*?) (.*?)<\/li>", text, flags=re.DOTALL):
+	for i in re.finditer(r"<li><p>!VALUE! (.*?) (.*?)( |\n|<)", text, flags=re.DOTALL):
+		pos = i.start()
+		end = matchString(text, pos, "<li>", "</li>")
 		enumType = i.group(1)
 		value = i.group(2)
-		body = i.group(0)
-		body = body.replace("<li><p>!VALUE! {} {}".format(enumType, value),
-												'<li value="{}" type="{}"><p>'.format(value, enumType))
-		textCopy = textCopy.replace(i.group(0), body)
+		body = text[pos:end]
+		newBody = body.replace("<li><p>!VALUE! {} {}".format(enumType, value),
+												'<li value="{}" type="{}"><p>'.format(value, enumType), 1)
+		textCopy = textCopy.replace(body, newBody)
 	return textCopy
 
 
