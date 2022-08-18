@@ -1,0 +1,143 @@
+\usepackage{amsmath,amssymb,amsfonts,array, color,epic,graphicx,fancyhdr,comment}
+\usepackage[T1]{fontenc}
+\usepackage{xstring, etoolbox, pdftexcmds,enumerate}
+
+\definecolor{myCEMC}{rgb}{0.008,0.737,0.8851}%{2,188,217}
+
+%%%Vertical Settings
+\setlength{\topmargin}{-0.65in}
+\setlength{\headheight}{0.5in}
+\setlength{\headsep}{0.15in}
+\setlength{\textheight}{9.4in}
+\setlength{\footskip}{0in}
+
+%%%Horizontal Settings
+\addtolength{\oddsidemargin}{-48pt} %REM 39pt is default - 1/8 inch = 9pt so total is 2.2cm side margins
+\setlength{\textwidth}{17.2cm}
+\setlength{\marginparsep}{0cm}
+\setlength{\marginparwidth}{0cm}
+
+
+%Spacing command for a blank line
+\setlength{\parskip}{2mm} 
+
+%%%Header and Footer Settings
+%%%You can change the vspace to adjust the headers and footers a little bit
+\pagestyle{fancy}
+\chead{\vspace{-0.45in}\includegraphics[scale=1.2]{\headerGraphic}}
+\pagenumbering{gobble}
+\cfoot{\textcolor{myCEMC}{
+\rule{\textwidth}{1.0pt}}\\[-2.5mm]
+\textcolor{myCEMC}{
+\rule{\textwidth}{1.0pt}}
+}
+%\cfoot{\vspace{-0.1in}\hspace{5mm}\includegraphics{\footerGraphic}}
+\renewcommand{\headrulewidth}{0pt} %REM eliminate horizontal line from header
+
+
+%% Filenames - possible future enhancement to redirect the pdf output
+\newcommand{\fnprefix}{
+	\IfStrEq{\tertiarystrand} {NONE}{
+		\IfStrEq{\secondarystrand}{NONE} {POTW\problemlevel{}-\problemyear{}-\mainstrand{}-\problemnum{}}
+		{POTW\problemlevel{}-\problemyear{}-\mainstrand{}-\secondarystrand{}-\problemnum{}}} 
+	{POTW\problemlevel{}-\problemyear{}-\mainstrand{}-\secondarystrand{}-\tertiarystrand{}-\problemnum{}}}	
+	
+% Document info
+% Title sizes - stdtitle(Large/bf), smtitle(large/bf)
+% Text sizes - stdtext(large), smtext(normalsize)
+% Graphics sizes - bigpic, smallpic
+
+\begin{document}
+
+\begin{center}
+\section{Problem of the Week \\ Problem \problemlevel{} \\ \problemtitle{}}
+%\ptitlefont{Problem of the Week}\ptitlespace
+%\psubtitlefont {Problem \problemlevel{}}\ptitlespace
+%\psubtitlefont{\problemtitle{}}\ptitledblspace
+\end{center}
+
+\begin{flushleft}
+\pbodytextfont{
+\problembody
+
+
+
+% Fun graphic
+\newcommand{\fungraphicdetails}
+{\begin{figure}[h]
+	\begin{center}
+	\includegraphics[width=\fungraphicsize\textwidth]{\fungraphic}
+	!NOALT!
+
+	\fungraphiccaption
+	\end{center}
+\end{figure}
+}
+
+
+
+\fungraphicdetails
+
+%\IfStrEq{\fungraphic} {NONE}
+%	{} 
+%	{\fungraphicdetails}
+
+
+} %stdtxt
+\end{flushleft}
+
+%\center
+
+
+% Strand details as they appear in the footer
+\newcommand{\strandtitlestyle}{\bf \textsc}
+\newcommand{\strandstyle}{\sc}
+
+\newcommand{\strandtitle}{
+	\IfStrEq{\secondarystrand}{NONE} {\textcolor{myCEMC} {Theme}} {\textcolor{myCEMC}{Themes}}} 
+
+\newcommand{\mstrandfoot}{
+	\IfStrEq{\secondarystrand}{NONE} {\mainstrandfull{}}{\mainstrandfull{},}} 
+
+\newcommand{\sstrandfoot}{
+	\IfStrEq{\secondarystrand}{NONE} {}
+		{\IfStrEq{\tertiarystrand}{NONE}
+			{\secondarystrandfull{}}
+			{\secondarystrandfull{},}}} 
+
+\newcommand{\tstrandfoot}{
+	\IfStrEq{\tertiarystrand}{NONE} {}{\tertiarystrandfull{}}} 
+
+\newcommand{\strandtable}
+{
+
+\textbf{Theme}: \problemtheme{}
+
+%\hspace*{-4mm}
+%\begin{tabular}{l l }
+%\strandtitlestyle{\strandtitle{}} &  \hspace*{-3mm}\mstrandfoot{} \hspace*{-2mm}\sstrandfoot{} \hspace*{-3mm}\tstrandfoot{} \\
+%\end{tabular}
+
+}
+\strandtable
+%\IfStrEq{\problemlevel} {A}
+%	{\IfStrEq{\tertiarystrand}{NONE}
+%		{\lfoot{\fontsize{12}{12} \vspace{-0.3in}{\strandstyle{\strandtable}}}}
+%		{\lfoot{\fontsize{12}{12} \vspace{-0.3in}{\strandstyle{\strandtable}}}}}
+%	{}
+%
+%\IfStrEq{\problemlevel} {B}
+%	{\IfStrEq{\tertiarystrand}{NONE}
+%		{\lfoot{\fontsize{12}{12} \vspace{-0.3in}{\strandstyle{\strandtable}}}}
+%		{\lfoot{\fontsize{12}{12} \vspace{-0.3in}{\strandstyle{\strandtable}}}}}
+%	{}
+%
+%\IfStrEq{\problemlevel} {C}
+%	{\IfStrEq{\tertiarystrand}{NONE}
+%		{\lfoot{\fontsize{12}{12} \vspace{-0.3in}{\strandstyle{\strandtable}}}}
+%		{\lfoot{\fontsize{12}{12} \vspace{-0.3in}{\strandstyle{\strandtable}}}}}
+%	{}
+%
+ 
+\end{document}
+

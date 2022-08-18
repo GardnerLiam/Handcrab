@@ -1,0 +1,67 @@
+\usepackage{amsmath,amssymb,amsfonts,array, color,epic,graphicx,fancyhdr,comment}
+\usepackage[T1]{fontenc}
+\usepackage{xstring, etoolbox, pdftexcmds,enumerate}%
+
+%%%Vertical Settings
+\setlength{\topmargin}{-0.65in}
+\setlength{\headheight}{0.5in}
+\setlength{\headsep}{0.15in}
+\setlength{\textheight}{9.4in}
+\setlength{\footskip}{0in}
+
+%%%Horizontal Settings
+\addtolength{\oddsidemargin}{-48pt} %REM 39pt is default - 1/8 inch = 9pt so total is 2.2cm side margins
+\setlength{\textwidth}{17.2cm}
+\setlength{\marginparsep}{0cm}
+\setlength{\marginparwidth}{0cm}
+
+
+%Spacing command for a blank line
+\setlength{\parskip}{2mm} 
+
+%%%Header and Footer Settings
+%%%You can change the vspace to adjust the headers and footers a little bit
+\pagestyle{fancy}
+\chead{\vspace{-0.45in}\includegraphics[scale=1.2]{\headerGraphic}}
+%\cfoot{\vspace{-0.1in}\hspace{5mm}\includegraphics{\footerGraphic}}
+\pagenumbering{gobble}
+\renewcommand{\headrulewidth}{0pt} %REM eliminate horizontal line from header
+
+% Document info
+% Title sizes - stdtitle(Large/bf), smtitle(large/bf)
+% Text sizes - stdtext(large), smtext(normalsize)
+% Graphics sizes - bigpic, smallpic
+
+\begin{document}
+
+\begin{center}
+\section{Problem of the Week \\ Problem \problemlevel{} and Solution}
+%\stitlefont{Problem of the Week}\stitlespace
+%\ssubtitlefont {Problem \problemlevel{}} and Solution\stitlespace
+%\ssubtitlefont{\problemtitle{}}\stitledblspace
+\end{center}
+
+\begin{center}
+	\includegraphics[width=\fungraphicsize\textwidth]{\fungraphic}
+	!NOALT!
+	\fungraphiccaption
+\end{center}
+
+
+\begin{flushleft}
+\smtext
+{
+\subsection{Problem}
+\problembody
+}% Problem text size
+\ifcsdef{solnstartnewpage}
+	{\IfStrEq{\solnstartnewpage}{NO}{\vspace{5mm}}{\newpage}}
+	{\vspace{5mm}}
+
+\sbodytextfont{
+\subsection{Solution}
+\solnbody
+} %Solution text size
+\end{flushleft}
+
+\end{document}

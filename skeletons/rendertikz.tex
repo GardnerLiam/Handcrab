@@ -1,0 +1,153 @@
+\documentclass[crop=false, a4paper, preview=true, border=10pt]{standalone}
+%Math Packages
+\usepackage{amsmath, amssymb, amsthm, cancel, comment} 
+
+ %Formatting Packages
+ \usepackage[breakable]{tcolorbox} 				
+\usepackage{setspace, multicol, graphicx, tikz, wrapfig, multicol,bm,array}
+\usetikzlibrary{shapes.geometric,fit}
+\usepackage[utf8x]{inputenc}
+\usepackage{hyperref}
+\usepackage{csquotes}
+\usepackage{lipsum}
+\usetikzlibrary{shapes,arrows,scopes}
+\allowdisplaybreaks
+
+%Margins
+\addtolength{\topmargin}{-1.3in}
+\addtolength{\oddsidemargin}{-0.85in}
+\addtolength{\evensidemargin}{-0.8in}
+\textheight9.7in
+\textwidth7.1in
+
+%Customized lists
+\usepackage[shortlabels]{enumitem}
+
+%Set spacing before lists and within lists
+\setlist[itemize]{itemsep =0pt, topsep=0pt}
+\setlist[enumerate]{itemsep = 0pt, topsep=0pt}
+
+%Header
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\setlength\headheight{80.0pt}
+\addtolength{\textheight}{-80.0pt}
+
+%End of solution line
+\newcommand{\EOS}{
+\vspace{-4mm}
+\begin{center}
+\rule{0.4\textwidth}{0.5pt}
+\end{center}
+\vspace{2mm}
+}
+
+%Hyperlinks
+\hypersetup{
+    colorlinks=true,
+    urlcolor=blue}
+    
+%Table formatting
+\usepackage{array}
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}    
+
+%% Indentation
+\setlength{\parskip}{2mm}
+\setlength{\parindent}{0pt}
+
+   
+%Gray Highlight Box
+\newenvironment{HLbox}
+    {\vspace{2mm}
+    \begin{tcolorbox}[breakable,colback=gray!5!white,colframe=gray!75!black,coltext=black,left=3mm,right=3mm,top=1.5mm,bottom=3mm]      
+    }
+    { 
+     \end{tcolorbox}
+    }     
+
+
+%Blue Highlight Box
+\newenvironment{HLbox2}
+    {\vspace{2mm}
+    \begin{tcolorbox}[breakable,colback=blue!5!white,colframe=blue!75!black,coltext=black,left=3mm,right=3mm,top=1.5mm,bottom=3mm]      
+    } 
+    { 
+     \end{tcolorbox}
+    }    
+
+    
+    %Green Highlight Box (added by Jen - to be used for Examples)
+\newenvironment{HLbox1}
+    {\vspace{2mm}
+    \begin{tcolorbox}[breakable,colback=green!10!white,colframe=white,coltext=black,left=3mm,right=3mm,top=1.5mm,bottom=3mm]      
+    } 
+    { 
+     \end{tcolorbox}
+    }      
+%   green!75!black,
+ 
+\newenvironment{HLbox3}
+    {\vspace{2mm}
+    \begin{tcolorbox}[colback=yellow!10!white,colframe=yellow!90!black,coltext=black,left=3mm,right=3mm,top=1.5mm,bottom=3mm]      
+    } 
+    { 
+     \end{tcolorbox}
+    } 
+
+    
+%%Heading formatting
+\usepackage[explicit]{titlesec}
+\titlespacing\subsubsection{0pt}{12pt}{-4pt}    
+    
+%% Sets
+\newcommand{\cc}{\mathbb{C}}
+\newcommand{\rr}{\mathbb{R}}
+\newcommand{\dd}{\mathbb{D}}
+\newcommand{\cldd}{\overline{\mathbb{D}}}
+\newcommand{\epsi}{\varepsilon}
+\newcommand{\nn}{\mathbb{N}}
+\newcommand{\zz}{\mathbb{Z}}
+\newcommand{\fy}{\varphi}
+\newcommand{\sign}{\text{sign}}
+\newcommand{\bfs}{\textbf{S}}
+\newcommand{\triv}{\textbf{1}}
+\newcommand{\bb}{\textbf{B}}
+\newcommand{\alga}{\mathcal{A}}
+\newcommand{\hilb}{\mathcal{H}}
+\newcommand{\inv}{\mathrm{GL}}
+\newcommand{\nil}{\mathrm{Nil}}
+\newcommand{\qnil}{\mathrm{QNil}}
+\newcommand{\bh}{\mathcal{B(H)}}
+\newcommand{\qh}{\mathcal{Q(H)}}
+\newcommand{\ol}{\overline}
+\newcommand{\dist}{\mathrm{dist}}
+\newcommand{\nor}{\mathrm{Nor}}
+\newcommand{\mm}{\mathbb{M}}
+\newcommand{\au}{\sim_{au}}
+\newcommand{\sorb}{\mathcal{S}}
+\newcommand{\alg}{\mathrm{Alg}}
+\newcommand{\bqt}{\mathrm{BQT}}
+\newcommand\scalemath[2]{\scalebox{#1}{\mbox{\ensuremath{\displaystyle #2}}}}
+
+%% Geometry
+\newcommand{\tri}{\triangle}
+
+%% Certain Visual Perceptions of Radiation in the range of the Electromagnetic Spectrum
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\green}[1]{\textcolor{ForestGreen}{#1}}
+\newcommand{\pink}[1]{\textcolor{magenta}{#1}}
+\newcommand{\yellow}[1]{\textcolor{yellow}{#1}}
+
+
+%% preamble ends here - none of the above will appear in the typeset document
+
+%% content begins here
+\begin{document}
+
+%!CONTENT!%
+
+\end{document}

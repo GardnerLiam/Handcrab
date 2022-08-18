@@ -1,0 +1,11 @@
+\newcommand{\relay}[4]{
+\subsection{Relay Problem \##4}
+\subsubsection{Seat a}
+#1
+\subsubsection{Seat b}
+#2
+\subsubsection{Seat c}
+#3
+}
+
+

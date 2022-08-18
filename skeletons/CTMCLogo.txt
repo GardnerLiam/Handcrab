@@ -1,0 +1,35 @@
+\hspace{-6mm}
+\begin{minipage}[b][2.5cm][t]{1.5cm}
+\vspace{-5mm}
+\includegraphics[height=0.6in]{../../Logos/CEMC.pdf}
+\end{minipage}
+\hfill
+\begin{minipage}[t][2.5cm][t]{12cm}
+\begin{center}
+{\bf \vspace{-3.2cm}\Large The CENTRE for EDUCATION\\[3mm]
+in MATHEMATICS and COMPUTING}\\[2mm]
+{\bf\Large \slshape cemc.uwaterloo.ca}
+\end{center}
+\end{minipage}\hfill
+\phantom{
+\begin{minipage}[b][2.5cm][t]{1.5cm}
+\includegraphics[height=0.6in]{../../Logos/CEMC.pdf}
+\end{minipage}}\\[-3.8cm]
+
+\hspace{-6mm}
+\begin{minipage}[b][2.5cm][t]{1.5cm}
+\vspace{-5mm}
+\includegraphics[height=0.6in]{../Logos/CEMC.pdf}
+\end{minipage}
+\hfill
+\begin{minipage}[t][2.5cm][t]{12cm}
+\begin{center}
+{\bf \vspace{-3.2cm}\Large The CENTRE for EDUCATION\\[3mm]
+in MATHEMATICS and COMPUTING}\\[2mm]
+{\bf\Large \slshape cemc.uwaterloo.ca}
+\end{center}
+\end{minipage}\hfill
+\phantom{
+\begin{minipage}[b][2.5cm][t]{1.5cm}
+\includegraphics[height=0.6in]{../Logos/CEMC.pdf}
+\end{minipage}}\\[-3.8cm]
