@@ -1,3 +1,4 @@
+from tikz import renderTikz, removeTikz
 from findLists import surroundQuestion, updateTeXLists 
 from skeleton import applySkeleton
 from findTables import updateLaTeXTables
@@ -31,7 +32,7 @@ def merge(fname, functions=[], imageDir="."):
 	if not fname.endswith(".tex"):
 		fname = fname + ".tex"
 	text = loadText(fname)
-	
+
 	text = re.sub(r"(^|\s)%(.*)$", '', text, flags=re.MULTILINE)
 	subFiles = re.findall(r"\\input{(.*?)}", text)
 
@@ -98,11 +99,19 @@ def process(config):
 			fname = tmpWrite(text)
 			text = mergeAll(fname, config)
 			os.remove(fname)
+	if not config["disable-tikz"]:
+		filename = os.path.split(fname)[1][:-4]
+		if config["image-folder"] is None:
+			text = renderTikz(text, filename, "")
+		else:
+			text = renderTikz(text, filename, config["image-folder"])
+	else:
+		text = removeTikz(text)
 	if not config["keep-minipages"]:
 		text = re.sub(r"\\(begin|end){minipage}((\[((.|\n)*?)\])?{((.|\n)*?)})?",
 									"", text, flags=re.MULTILINE)
-
-	text = re.sub(r"\\(begin|end){flush(left|right|top|bottom)}", "", text, flags=re.MULTILINE)
+	if config["remove-flush"]:
+		text = re.sub(r"\\(begin|end){flush(left|right|top|bottom)}", "", text, flags=re.MULTILINE)
 
 	text = re.sub(r"\\(v|h)space{(.*?)}", " ", text, flags=re.MULTILINE)
 	# remove raisebox and fbox

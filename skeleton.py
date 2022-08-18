@@ -25,6 +25,7 @@ skeletons = {
 	"pcfContest":"PCFContest.html", 
 	"euclidTeX": "EuclidContest.tex",
 	"euclidContest": "EuclidContest.html",
+	"tikz": "rendertikz.tex",
 	"default": "default.html"
 }
 
@@ -71,10 +72,12 @@ def applySkeleton(text, skeleton, config, write=""):
 			temp = re.sub(r"<title>((.|\n)*?)<\/title>",
 										"<title>{}</title>".format(config["title"]), temp)
 		else:
-			title = re.search(r"<h1(.*?)>((.|\n)*?)<(\/h1|br)", text)
-			if (title is not None):
-				title = title.group(2)
-				temp = re.sub(r"<title>((.|\n)*?)<\/title>", "<title>{}</title>".format(title), temp)
+			title = "TITLE" 
+			m1 = re.search(r"<h1(.*?)>(.*?)<\/h1>", text, flags=re.DOTALL)
+			if m1 is not None:
+				if m1.group(2) is not None:
+					title = re.sub(r"(.*?)(?:<.*?>|$)", r"\1", m1.group(2), flags=re.MULTILINE).replace("\n"," ")
+			temp = re.sub(r"<title>((.|\n)*?)<\/title>", "<title>{}</title>".format(title), temp)
 		if "postskeletonprocessing" in config and len(config["postskeletonprocessing"]) > 0:
 			for i in config["postskeletonprocessing"]:
 				temp = i(temp)

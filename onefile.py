@@ -31,14 +31,16 @@ def combineFiles(config):
 	text = "<body>\n"+"\n".join(fileText)+"</body>"
 	return applySkeleton(text, config["skeleton"], config, write=config["output"])
 
-def writeOneFile(config):
+def writeOneFile(config, postImageFolder=None):
 	preprocessConfig = {
 		"input": None,
 		"TeXSkeleton": None,
 		"keep-minipages": None,
+		"remove-flush": False,
 		"remove-phantom": False,
 		"merge-before": True,
 		"image-folder": None,
+		"disable-tikz": False,
 		"preprocessing": [],
 	}
 

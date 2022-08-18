@@ -82,9 +82,20 @@
     }
     pre {
       margin: 1em 0;
-      overflow: auto;
+			text-align: center;
+			font-size: 1.2em;
+			background-color: #EFEFEF;
+			border-radius: 25px;
+      padding: 0.5em;
+			overflow: auto;
     }
-    pre code {
+
+		pre.multiline {
+			padding: 1em;
+		}
+    pre.multiline code {
+			display: inline-block;
+			text-align: left;
       padding: 0;
       overflow: visible;
     }
