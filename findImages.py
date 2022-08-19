@@ -18,7 +18,11 @@ def updateImages(text, image_folder=""):
 				percentSize = True
 			size = size.replace(r"\textwidth", "%")
 			size = size.replace("=", ":")
-			numeral = float(size[size.find(":")+1:-1])
+			numeral = 0 
+			if "in" in size:
+				numeral = float(size[size.find(":")+1:size.find("in")])
+			else:
+				numeral = float(size[size.find(":")+1:-1])
 			newNumeral = numeral
 			if percentSize:
 				newNumeral*=100

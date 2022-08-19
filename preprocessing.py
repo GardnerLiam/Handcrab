@@ -225,7 +225,7 @@ def process(config):
 	newBody = updateTeXLists(body)
 	text = text.replace(body, newBody)
 
-	text = re.sub(r"(\\includegraphics(\[(.*?)\])?{(.*?)}\n!(ALTMARKER|NOALT)(S?)![^}\n\\&]+)",
+	text = re.sub(r"(\\includegraphics(\[(.*?)\])?{(.*?)}\n!(ALTMARKER|NOALT)(S?)!([^}\n\\&]+)?)",
 								r"!IMAGE!\n\1\n!IMAGE!\n", text)
 
 	text = re.sub(r"\\hfill ?{", r"\\box{", text)

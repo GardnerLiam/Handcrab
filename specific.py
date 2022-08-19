@@ -225,7 +225,6 @@ def gaussSolnFixer(text):
 				re.finditer(r"(.*?)\\end{itemize}(.*?)$", text, flags=re.MULTILINE)][-1]
 	
 	subText = text[start:end+1]
-	print(subText)
 	#subText = re.sub(r"{(.*?)\\(begin|end){itemize}(.*?)}",
 	#									r"{\1\n\3}\n\\\2{itemize}", subText, flags=re.DOTALL)
 	#subText = re.sub(r"{(\s+)?}", "", subText)

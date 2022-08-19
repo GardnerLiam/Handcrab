@@ -261,6 +261,7 @@ else:
 outputFiles = []
 count = 0
 for filename in config["input"]:
+	print(filename)
 	subConfig = copy.deepcopy(config)
 	if "template" in subConfig:
 		subConfig.pop("template")
