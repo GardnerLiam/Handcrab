@@ -102,9 +102,9 @@ def process(config):
 	if not config["disable-tikz"]:
 		filename = os.path.split(fname)[1][:-4]
 		if config["image-folder"] is None:
-			text = renderTikz(text, filename, "")
+			text = renderTikz(text, filename, "", tizkPDF=config["tikz-pdf"])
 		else:
-			text = renderTikz(text, filename, config["image-folder"])
+			text = renderTikz(text, filename, config["image-folder"], tikzPDF=config["tikz-pdf"])
 	else:
 		text = removeTikz(text)
 	if not config["keep-minipages"]:

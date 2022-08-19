@@ -34,7 +34,10 @@ def removeTikz(text):
 		text = text.replace(i, "")
 	return text
 
-def renderTikz(text, prefix, image_folder):
+def renderTikz(text, prefix, image_folder, tikzPDF=False):
+	makeSVG = shutil.which("inkscape") is not None
+	if (tikzPDF == True):
+		makeSVG = False
 	tikz = parseTikz(text)
 	if not os.path.isdir("tmp/"):
 		os.mkdir("tmp/")
@@ -45,18 +48,27 @@ def renderTikz(text, prefix, image_folder):
 	for i in range(len(tikz)):
 		pdfname = os.path.join("tmp", "{}.pdf".format(i))
 		check_call(["pdfcrop", "--margins", '3', pdfname], stdout=DEVNULL, stderr=STDOUT)
-		incgl = "\\includegraphics[width=0.3\\textwidth]{"+os.path.join(image_folder, prefix+"{}.svg".format(i))+"}"
+		incgl_name = os.path.join(image_folder, prefix+"{}".format(i))
+		if makeSVG:
+			incgl_name += ".svg"
+		else:
+			incgl_name += ".pdf"
+		incgl = "\\includegraphics[width=0.3\\textwidth]{"+incgl_name+"}"
 		text = text.replace(tikz[i], incgl)
 	for i in [os.path.join("tmp", j) for j in os.listdir("tmp")]:
 		if "-crop" not in i:
 			os.remove(i)
 	#Popen(["inkscape", "--export-type=svg", "tmp/*.pdf"], shell=True)
-	check_call(["inkscape", "--export-type=svg", "tmp/*.pdf"])
-	os.system("inkscape --export-type=svg tmp/*.pdf")
-	for i in [os.path.join("tmp", j) for j in os.listdir("tmp")]:
-		if not i.endswith(".svg"):
-			os.remove(i)
-		else:
+	if (makeSVG):
+		check_call(["inkscape", "--export-type=svg", "tmp/*.pdf"], shell=True)
+		for i in [os.path.join("tmp", j) for j in os.listdir("tmp")]:
+			if not i.endswith(".svg"):
+				os.remove(i)
+			else:
+				name = os.path.split(i)[1]
+				os.rename(i, os.path.join(image_folder, prefix+name.replace("-crop", "")))
+	else:
+		for i in [os.path.join("tmp", j) for j in os.listdir('tmp')]:
 			name = os.path.split(i)[1]
 			os.rename(i, os.path.join(image_folder, prefix+name.replace("-crop", "")))
 	shutil.rmtree("tmp/")

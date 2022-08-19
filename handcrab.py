@@ -19,13 +19,13 @@ parser.add_argument("-m", "--keep-minipages", help="Does not remove minipages", 
 parser.add_argument("-if", "--image-folder", help="Provide location for images")
 parser.add_argument("-css", "--css", help="Path for CSS file")
 parser.add_argument("-n", "--title", default="", help="change the title tag in HTML")
-parser.add_argument("-dt", "--disable-tikz", help="Does not convert tikz to svg", action="store_true")
+parser.add_argument("-dt", "--disable-tikz", help="Removes tikz environments", action="store_true")
+parser.add_argument("-tp", "--tikz-pdf", help="Only converts tikz to PDF and not SVG", action="store_true")
 parser.add_argument("-rf", "--remove-flush", help="Removes any flushleft/flushright calls", action="store_true")
 parser.add_argument("-V", "--verbose", help="Verbose mode", action="store_true")
 parser.add_argument("-k", "--keep-markers", help="Does not remove accidental markers. May make errors harder to find", action="store_true")
 parser.add_argument("-dhf", "--disable-helper-functions", help="disable template-specific modifications", action='store_true')
 
-parser.add_argument("-dhf", "--disable-helper-functions", help="disable template-specific modifications", action='store_true')
 args = parser.parse_args()
 
 config = {
@@ -37,6 +37,7 @@ config = {
 	"keep-markers": args.keep_markers,
 	'title': args.title,
 	"disable-tikz": args.disable_tikz,
+	"tikz-pdf": args.tikz_pdf,
 	"remove-flush": args.remove_flush
 }
 

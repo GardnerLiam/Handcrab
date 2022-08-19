@@ -42,6 +42,7 @@ def writeOneFile(config, postImageFolder=None):
 		"merge-before": True,
 		"image-folder": None,
 		"disable-tikz": False,
+		"tikz-pdf": False,
 		"preprocessing": [],
 	}
 
