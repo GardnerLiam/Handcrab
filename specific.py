@@ -220,14 +220,17 @@ def gaussSolnFixer(text):
 	potential += [m.start() for m in re.finditer(r"(\\begin{center}(.*?))?\\section{(.*?)}",
 																							text, flags=re.DOTALL)]
 	if len(potential) > 0:
-		start = min(start, potential[0]) 
+		start = min(start, min(potential))
 	end = [m.start()+len(m.group(0)) for m in 
 				re.finditer(r"(.*?)\\end{itemize}(.*?)$", text, flags=re.MULTILINE)][-1]
 	
 	subText = text[start:end+1]
+	print(subText)
 	#subText = re.sub(r"{(.*?)\\(begin|end){itemize}(.*?)}",
 	#									r"{\1\n\3}\n\\\2{itemize}", subText, flags=re.DOTALL)
 	#subText = re.sub(r"{(\s+)?}", "", subText)
+
+	subText = re.sub(r"\\(begin|end){(enumerate|itemize)}}", r"}\\\1{\2}", text)
 
 	text = "\\begin{document}\n"+subText+"\n\\end{document}"
 	return text

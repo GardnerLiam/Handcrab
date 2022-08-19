@@ -100,9 +100,9 @@ def process(config):
 			text = mergeAll(fname, config)
 			os.remove(fname)
 	if not config["disable-tikz"]:
-		filename = os.path.split(fname)[1][:-4]
+		filename = os.path.split(config["input"])[1][:-4]
 		if config["image-folder"] is None:
-			text = renderTikz(text, filename, "", tizkPDF=config["tikz-pdf"])
+			text = renderTikz(text, filename, "", tikzPDF=config["tikz-pdf"])
 		else:
 			text = renderTikz(text, filename, config["image-folder"], tikzPDF=config["tikz-pdf"])
 	else:
