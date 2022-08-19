@@ -26,9 +26,11 @@ arguments are as follows:
 | `--css`                      | `-css`         | Overrides path to CSS stylesheet            |
 | `--title`                    | `-n`           | Overrides the HTML `<title>` tag            |
 | `--disable-tikz`             | `-dt`          | Removes all tikz instances from file        | 
+| `--tikz-pdf`                 | `-tp`          | Tikz graphics will render as cropped PDFs   | 
 | `--remove-flush`             | `-rf`          | Removes flushleft/flushright environments   |
 | `--verbose`                  | `-V`           | Displays any log messages                   |
 | `--help`                     | `-h`           | Displays help message                       |
+| `--keep-markers`             | `-k`           | Any markers left from bugs will remain      |
 | `--disable-helper-functions` | `-dhf`         | Disables template-specific modifications    |
 
 For example, if your input file was `Folder/MyInput.tex` and you wanted

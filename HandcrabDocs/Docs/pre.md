@@ -84,3 +84,21 @@ If a skeleton file ending in `.tex` is given using the `--skeleton` or `-s` argu
 `%!CONTENT!%` will be replaced with everything between `\begin{document}` and `\end{document}` of the input files. This ensures that any newcommands or new environments can be overwritten if necessary.
 
 It should be noted that both an HTML and LaTeX template can be provided using `--skeleton` or `-s` in any order.
+
+## Tikz Environments
+Assuming `-dt` or `--disable-tikz` is not being used, Handcrab will strip the tikz into a standalone graphic, compile that using `pdflatex` following the `tikz` template, then crop using `pdfcrop --margins 3`, and finally convert in bulk all tikz graphics to SVG files.
+
+The `\begin{tikzpicture}...\end{tikzpicture}` is then replaced with an `\includegraphics[width=0.3\textwidth]` call.
+
+If you want a tikz graphic to come with an alt description, add the marker under the `\end{tikzpicture}`. So for example:
+
+```.{multiline}
+...
+\end{tikzpicture}
+!ALTMARKER! The intersection of the black circles has area 0.5
+...
+``` 
+
+I would be less careless about the placement of the markers with this than I would with regular includegraphics cals. 
+
+The `--tikz-pdf` or `-tp` argument can be appended to the command to get tikz graphics to output as cropped PDFs. In cases where inkscape is being unhelpful, this may be preferred. 

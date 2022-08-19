@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>docs</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="DocsCSS.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<p><img src="../CEMC_header.png" /></p>
+<h1 id="handcrab-documentation">Handcrab Documentation</h1>
+<h2 id="introduction">Introduction</h2>
+<p>Handcrab is a wrapper around pandoc that automates some of the HTML
+formatting. Currently, handcrab can automate the styling of row headers
+and row/column headers in tables (column headers are done in pandoc by
+default), and can fill in the alt text for images. It can also create
+the description box with the hide/reveal button in case the alt tag
+isn’t big enough to hold the description. Handcrab comes with the
+<code>--help</code> or <code>-h</code> tags in order to view the
+passable arguments. Those arguments are as follows:</p>
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 17%" />
+<col style="width: 49%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Argument Name</strong></th>
+<th><strong>Short-Form</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>--input</code></td>
+<td><code>-i</code></td>
+<td>Input TeX file(s)</td>
+</tr>
+<tr class="even">
+<td><code>--output</code></td>
+<td><code>-o</code></td>
+<td>Output HTML file</td>
+</tr>
+<tr class="odd">
+<td><code>--skeleton</code></td>
+<td><code>-s</code></td>
+<td>Skeleton file for formatting HTML output</td>
+</tr>
+<tr class="even">
+<td><code>--template</code></td>
+<td><code>-t</code></td>
+<td>Compiling instruction common CEMC resources</td>
+</tr>
+<tr class="odd">
+<td><code>--heading-level</code></td>
+<td><code>-hl</code></td>
+<td>Shifts highest heading level down in output</td>
+</tr>
+<tr class="even">
+<td><code>--remove-phantom</code></td>
+<td><code>-p</code></td>
+<td>Removes <code>\phantom{}</code> tags from the output</td>
+</tr>
+<tr class="odd">
+<td><code>--keep-minipages</code></td>
+<td><code>-m</code></td>
+<td>Does not remove minipages in output</td>
+</tr>
+<tr class="even">
+<td><code>--image-folder</code></td>
+<td><code>-if</code></td>
+<td>Specifies directory for images</td>
+</tr>
+<tr class="odd">
+<td><code>--css</code></td>
+<td><code>-css</code></td>
+<td>Overrides path to CSS stylesheet</td>
+</tr>
+<tr class="even">
+<td><code>--title</code></td>
+<td><code>-n</code></td>
+<td>Overrides the HTML <code>&lt;title&gt;</code> tag</td>
+</tr>
+<tr class="odd">
+<td><code>--disable-tikz</code></td>
+<td><code>-dt</code></td>
+<td>Removes all tikz instances from file</td>
+</tr>
+<tr class="even">
+<td><code>--tikz-pdf</code></td>
+<td><code>-tp</code></td>
+<td>Tikz graphics will render as cropped PDFs</td>
+</tr>
+<tr class="odd">
+<td><code>--remove-flush</code></td>
+<td><code>-rf</code></td>
+<td>Removes flushleft/flushright environments</td>
+</tr>
+<tr class="even">
+<td><code>--verbose</code></td>
+<td><code>-V</code></td>
+<td>Displays any log messages</td>
+</tr>
+<tr class="odd">
+<td><code>--help</code></td>
+<td><code>-h</code></td>
+<td>Displays help message</td>
+</tr>
+<tr class="even">
+<td><code>--keep-markers</code></td>
+<td><code>-k</code></td>
+<td>Any markers left from bugs will remain</td>
+</tr>
+<tr class="odd">
+<td><code>--disable-helper-functions</code></td>
+<td><code>-dhf</code></td>
+<td>Disables template-specific modifications</td>
+</tr>
+</tbody>
+</table>
+<p>For example, if your input file was <code>Folder/MyInput.tex</code>
+and you wanted to write the HTML <code>Folder2/MyOutput.html</code> you
+could run the following command:</p>
+<pre><code>handcrab -i &quot;Folder/MyInput.tex&quot; -o &quot;Folder2/MyOutput.html&quot;</code></pre>
+<p>It should be noted that the <code>--output</code> or <code>-o</code>
+option may be left blank, and in such instances the name of the original
+file will be used for the output name. For example,</p>
+<pre><code>handcrab -i &quot;Folder/MyInput.tex&quot;</code></pre>
+<p>will output a the file <code>Folder/MyInput.html</code>.</p>
+<h3 id="outputting-to-directories">Outputting to directories</h3>
+<p>It should also be noted that if the output is a directory instead of
+a file, it will output the file into that directory. For example:</p>
+<pre><code>handcrab -i &quot;myFile.tex&quot; -o &quot;myDirectory/&quot;</code></pre>
+<p>will output the file <code>myDirectory/myFile.html</code>.</p>
+<p>All references to other resources, such as image folders and css are
+relative to the directory the command is run in. For example, in the
+command</p>
+<pre><code>handcrab -i &quot;myFile.tex&quot; -if &quot;../myImages&quot; -o &quot;myDirectory&quot;</code></pre>
+<p>All image outputs will have their source directory be
+<code>../myImages</code> and <strong>not</strong>
+<code>../../myImages</code>.</p>
+<h3 id="skeletons">Skeletons</h3>
+<p>A skeleton HTML or TeX file can be provided using the <code>-s</code>
+or <code>--skeleton</code> argument. If given an HTML file, Handcrab
+will replace <code>&lt;p&gt;Content&lt;/p&gt;</code> with the body of
+the output. If given a TeX file, handcrab will replace
+<code>%!CONTENT!%</code> with the body of the TeX file before
+compiling.</p>
+<pre><code>handcrab -i &quot;Folder/MyInput.tex&quot; -o &quot;Folder2/MyOutput.html&quot; -s sktn.html</code></pre>
+<p>Handcrab has some default skeleton files as well, which can be
+accessed by passing in their <em>abbreviation</em>, a table of which can
+be seen below.</p>
+<table>
+<colgroup>
+<col style="width: 29%" />
+<col style="width: 18%" />
+<col style="width: 52%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Filename</strong></th>
+<th><strong>Abbreviation</strong></th>
+<th><strong>Purpose</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>CCCProblemTemplate.html</code></td>
+<td><code>cccProblem</code></td>
+<td>For compiling a single CCC problem</td>
+</tr>
+<tr class="even">
+<td><code>CCCSkeletonFull.html</code></td>
+<td><code>cccFull</code></td>
+<td>For compiling multiple CCC questions into one file</td>
+</tr>
+<tr class="odd">
+<td><code>BCCSkeleton.tex</code></td>
+<td><code>bccTeX</code></td>
+<td>Removes Tikz from the BCC rendering commands</td>
+</tr>
+<tr class="even">
+<td><code>BCCSkeleton.html</code></td>
+<td><code>bccFull</code></td>
+<td>For compiling BCC contests</td>
+</tr>
+<tr class="odd">
+<td><code>POTM.html</code></td>
+<td><code>potm</code></td>
+<td>For compiling POTM questions</td>
+</tr>
+<tr class="even">
+<td><code>POTW.html</code></td>
+<td><code>potw</code></td>
+<td>For compiling POTW questions</td>
+</tr>
+<tr class="odd">
+<td><code>MathCirclesLesson.html</code></td>
+<td><code>mcLesson</code></td>
+<td>For compiling Math Circles lesson files</td>
+</tr>
+<tr class="even">
+<td><code>MathCirclesProblemSet.html</code></td>
+<td><code>mcProbset</code></td>
+<td>For compiling Math Circles problem set files</td>
+</tr>
+<tr class="odd">
+<td><code>MathCirclesSolution.html</code></td>
+<td><code>mcSoln</code></td>
+<td>For compiling Math Circles solution files</td>
+</tr>
+<tr class="even">
+<td><code>CTMC.html</code></td>
+<td><code>ctmc</code></td>
+<td>For compiling all CTMC resources</td>
+</tr>
+<tr class="odd">
+<td><code>GaussContest.tex</code></td>
+<td><code>gaussTeX</code></td>
+<td>For compiling Gauss contest files</td>
+</tr>
+<tr class="even">
+<td><code>GaussContest.html</code></td>
+<td><code>gaussContest</code></td>
+<td>For compiling Gauss contest files</td>
+</tr>
+<tr class="odd">
+<td><code>GaussPCFSolution.tex</code></td>
+<td><code>gaussSolnTeX</code></td>
+<td>For compiling Gauss solution files</td>
+</tr>
+<tr class="even">
+<td><code>GaussPCFSolution.tex</code></td>
+<td><code>pcfSolnTeX</code></td>
+<td>For compiling PCF solution files</td>
+</tr>
+<tr class="odd">
+<td><code>PCFContest.html</code></td>
+<td><code>pcfContest</code></td>
+<td>For compiling PCF contest files</td>
+</tr>
+<tr class="even">
+<td><code>EuclidContest.tex</code></td>
+<td><code>euclidTeX</code></td>
+<td>For compiling Euclid contest files</td>
+</tr>
+<tr class="odd">
+<td><code>EuclidContest.html</code></td>
+<td><code>euclidContest</code></td>
+<td>For compiling Euclid contest files</td>
+</tr>
+<tr class="even">
+<td><code>rendertikz.tex</code></td>
+<td><code>tikz</code></td>
+<td>For compiling standalone tikz graphics</td>
+</tr>
+</tbody>
+</table>
+<p>Two skeleton files can be provided together if one is an HTML file
+and the other is a LaTeX file. This is the only instance in which
+multiple files may be provided using the <code>--skeleton</code> or
+<code>-s</code> argument.</p>
+<p>It should be noted that when using any <a
+href="#templates">templates</a>, the skeleton will automatically be
+chosen, and there is no need to specify the skeleton when specifying a
+template.</p>
+<h3 id="heading-levels">Heading Levels</h3>
+<p>The <code>--heading-level</code> argument takes an integer <em>n</em>
+(which is 0 by default) and shifts the heading level of
+<code>\section</code> (or <code>\chapter</code> if present) to a
+level-<em>n</em> header. When not specified, <code>\section</code> will
+be mapped to <code>&lt;h1&gt;</code>.</p>
+<p>For example, the following command will match all instances of
+<code>\section</code> to <code>h2</code> headers,
+<code>\subsection</code> to <code>h3</code> headers,
+<code>\subsubsection</code> to <code>h4</code> headers, and so on:</p>
+<pre><code>handcrab -i &quot;Folder/MyInput.tex&quot; -o &quot;Folder2/MyOutput.html&quot; -s sktn.html -hl 1</code></pre>
+<h3 id="templates">Templates</h3>
+<p>There are certain CEMC resources that appear a lot, and have their
+own general look to them. A template has been designed for compiling all
+of the following resources, and it can be specified using the
+<code>--template</code> or <code>-t</code> argument:</p>
+<table>
+<thead>
+<tr class="header">
+<th><strong>Resource Name</strong></th>
+<th><strong>Template input</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>BCC</td>
+<td><code>bcc</code></td>
+</tr>
+<tr class="even">
+<td>CCC/CCO</td>
+<td><code>ccc</code></td>
+</tr>
+<tr class="odd">
+<td>POTM</td>
+<td><code>potm</code></td>
+</tr>
+<tr class="even">
+<td>Math Circles</td>
+<td><code>mathcircles</code></td>
+</tr>
+<tr class="odd">
+<td>all CTMC resources</td>
+<td><code>ctmc</code></td>
+</tr>
+<tr class="even">
+<td>POTW</td>
+<td><code>potw</code></td>
+</tr>
+<tr class="odd">
+<td>Gauss Contest</td>
+<td><code>gauss</code></td>
+</tr>
+<tr class="even">
+<td>Gauss Solution</td>
+<td><code>gaussSoln</code></td>
+</tr>
+<tr class="odd">
+<td>PCF Contests</td>
+<td><code>pcf</code></td>
+</tr>
+<tr class="even">
+<td>PCF Solutions</td>
+<td><code>pcfSoln</code></td>
+</tr>
+<tr class="odd">
+<td>Euclid Contest</td>
+<td><code>euclid</code></td>
+</tr>
+<tr class="even">
+<td>Euclid Solutions</td>
+<td><code>euclidSoln</code></td>
+</tr>
+</tbody>
+</table>
+<p>Each template will automatically add any requisite arguments to
+Handcrab in an attempt to make the desired output. Specifying arguments
+will override the template. For example, the <code>ccc</code> template
+automatically shifts heading levels down by 1, so if your command
+was</p>
+<pre><code>handcrab -i filein.tex -o fileout.html -t ccc -hl 3</code></pre>
+<p>regardless of what <code>-t ccc</code> is doing to the heading
+levels, the output will shift <code>\section</code> to
+<code>h4</code>.</p>
+<p>Certain templates have specific helper functions that help with the
+latex and html processing. These can be disableed using the
+<code>-dhf</code> or <code>--disable-helper-functions</code> parameter.
+<code>-dhf</code> will have no effect if a template is not provided.</p>
+<p>It should also be noted that the template input is case insensitive,
+so <code>-t euclidSoln</code> is equivalent to
+<code>-t eUcLiDsOlN</code>.</p>
+<p><strong>The math circles template does not need specified
+outputs.</strong></p>
+<h4 id="problem-of-the-week-potw-conversion">Problem of the Week (POTW)
+conversion</h4>
+<p>The Problem of the Week files graphics and themes need specific
+commands in the LaTeX to trigger the “Theme” text and the fun-graphic
+alt text. To trigger the theme text, the following line must be added in
+the <code>ProblemDetails.tex</code> file:</p>
+<pre><code>\newcommand{\problemtheme}{theme goes here in lowercase}</code></pre>
+<p>If this line is either missing, or if the theme is left empty, the
+theme text <strong>will not appear</strong>.</p>
+<p>The graphic is broken down into two parts:</p>
+<ul class="incremental">
+<li>The resource uses <code>\pstoggle</code>
+<ul class="incremental">
+<li><code>\pstoggle</code> and all <code>fungraphic</code> macros are
+ignored</li>
+<li>everything within <code>\problemonly</code> will be displayed
+regardless of problem or solution</li>
+</ul></li>
+<li>The resource does not use <code>\pstoggle</code>
+<ul class="incremental">
+<li>The alt text is set to be empty and can only be modified in
+HTML.</li>
+</ul></li>
+</ul>
+<h3 id="contest-title-notes">Contest Title Notes</h3>
+<p>The level-1 header or title for contests does not necessarily need to
+be provided for everything to compile. A default contest-title template
+is provided, but by adding code such as</p>
+<pre class=".{multiline}"><code>\begin{center}
+\section{...}
+...
+\end{center}</code></pre>
+<p>the default will be overwritten with whatever is inside the center
+environment.</p>
+<p>The <code>&lt;title&gt;...&lt;/title&gt;</code> part of the HTML
+output will be exactly everything within the <code>\section{...}</code>
+or <code>&lt;h1&gt;</code> tag, and will exclude any line breaks
+present.</p>
+<h4 id="pcf-contest-and-solution-notes">PCF Contest and Solution
+Notes</h4>
+<p>As long as the contest name is in the filename, both the default
+title discussed above, and the <code>Further Information</code> will
+have the correct contest name for the current contest and the next
+contest (referenced in “Encourage your teacher to register you for ___
+Contest”)</p>
+<h2 id="installationdependencies">Installation/Dependencies</h2>
+<p>To run the program as a python script, the <strong>lxml</strong>
+python package has to be installed. This is the package that handles XML
+parsing for updating table headers.</p>
+<p>The following programs must also be installed</p>
+<ul class="incremental">
+<li>Pandoc (used for converting processed LaTeX into HTML)</li>
+<li>TexLive-full (provides the pdflatex and pdfcrop commands, which are
+both used)</li>
+<li>Inkscape (used for converting tikz pdfs to svgs)</li>
+</ul>
+<h2 id="environments">Environments</h2>
+<p>Handcrab offers extra conversion that pandoc doesn’t do. The
+conversions are specified by Handcrab’s environments. For documentation
+and examples, <a href="env.html">click here</a></p>
+<h2 id="handcrab-latex-processing">Handcrab LaTeX processing</h2>
+<p>Handcrab does some processing to the LaTeX code when compiling.
+Things such as removal of fboxes and phantoms. An in-depth explanation
+is <a href="pre.html">provided here</a></p>
+</body>
+</html>

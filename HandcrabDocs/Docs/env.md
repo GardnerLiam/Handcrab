@@ -101,21 +101,7 @@ The `!ALTMARKERS!` environment adds the line `class="static"` to the image, whic
 
 `!NOALT!` is used in the same way as the first two, except does not require alt text, and instead the alt text is left empty upon conversion.
 
-### Tikz Environments
-Assuming `-dt` or `--disable-tikz` is not being used, Handcrab will strip the tikz into a standalone graphic, compile that using `pdflatex` following the `tikz` template, then crop using `pdfcrop --margins 3`, and finally convert in bulk all tikz graphics to SVG files.
 
-The `\begin{tikzpicture}...\end{tikzpicture}` is then replaced with an `\includegraphics[width=0.3\textwidth]` call.
-
-If you want a tikz graphic to come with an alt description, add the marker under the `\end{tikzpicture}`. So for example:
-
-```.{multiline}
-...
-\end{tikzpicture}
-!ALTMARKER! The intersection of the black circles has area 0.5
-...
-``` 
-
-I would be less careless about the placement of the markers with this than I would with regular includegraphics cals. 
 
 ## Long Descriptions
 

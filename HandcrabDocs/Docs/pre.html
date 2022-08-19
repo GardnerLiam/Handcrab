@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>pre</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="DocsCSS.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<p><img src="../CEMC_header.png" /></p>
+<h1 id="handcrab-documentation-preprocessing"><a
+href="index.html">Handcrab Documentation — Preprocessing</a></h1>
+<h2 id="introduction">Introduction</h2>
+<p>Handcrab can process and filter through certain elements of the LaTeX
+file(s) before cmpiling to HTML. These processes run for every file
+specified either with the <code>--input</code> or <code>-i</code>
+argument, or with appended LaTeX files called by
+<code>\input{}</code>.</p>
+<p>Handcrab takes care of three major things before conversion:</p>
+<ul class="incremental">
+<li>Removal of unwated LaTeX tags</li>
+<li>Repositioning of <a href="env.html">Handcrab environments</a></li>
+<li>Application of LaTeX skeletons (specified by <code>--skeleton</code>
+or <code>-s</code>)</li>
+</ul>
+<h2 id="removal-of-unwanted-latex-commands">Removal of Unwanted LaTeX
+Commands</h2>
+<p>The following commands are removed by Handcrab, and only the
+important contents will remain.</p>
+<ul class="incremental">
+<li>raisebox</li>
+<li>fbox</li>
+<li>phantom (on request, using <code>-p</code>)</li>
+<li>graphicspath</li>
+<li>comments</li>
+<li>tikz graphics (on request, using <code>-dt</code>)</li>
+<li>minipages (can be kept on request, using <code>-m</code>)</li>
+<li>vspace &amp; hspace</li>
+<li>flush environments (on request, using <code>-rf</code>)</li>
+<li>framebox</li>
+<li>parbox</li>
+</ul>
+<h2 id="lists">Lists</h2>
+<p>The usage of <code>[label=(\aleph*)]</code> and
+<code>[label=(\Aleph*)]</code> from <code>\begin{enumerate}</code> and
+<code>\begin{itemize}</code> is removed and replaced with
+<code>[a]</code> and <code>[A]</code> respectively.</p>
+<p>List environments should work as intended with latex. For example,
+<code>\begin{enumerate}[A.]</code> and <code>\begin{itemize}[A.]</code>
+will have the same effect in the HTML, and <code>\item[...]</code> will
+also be preserved, regardless of if the list was enumerate or
+itemize.</p>
+<p>Nested enumeration does not change types by default, so in the
+following example code,</p>
+<pre class=".{multiline}"><code>\begin{enumerate}
+\item text one
+\item text two
+    \begin{enumerate}
+        \item text two point five
+        \itme text two point seven five
+    \end{enumerate}
+\item text three
+\end{enumerate}</code></pre>
+<p>LaTeX would naturally make the second enumerate use letters instead
+of numbers. This will not be preserved. The nested enumeration will come
+out as numbered. However, if the nested enumeration started with
+<code>\begin{enumerate}[A.]</code>, then it will come out using
+letters.</p>
+<p>This feature was required to get contest files working.</p>
+<p>For contests with custom list structures, such as BCC, Gauss and PCF,
+the output will respect those list structures as long as the template is
+specified.</p>
+<p>For example, compiling BCC without using <code>-t bcc</code> will not
+create the special multiple choice lists.</p>
+<h2 id="repositioning-of-handcrab-environments">Repositioning of
+Handcrab Environments</h2>
+<p>This section doesn’t really need much explaining, aside from the fact
+that it allows for the user to be lenient with how they place the
+handcrab environment tags.</p>
+<h2 id="application-of-latex-skeletons">Application of LaTeX
+skeletons</h2>
+<p>If a skeleton file ending in <code>.tex</code> is given using the
+<code>--skeleton</code> or <code>-s</code> argument, then this skeleton
+will be applied to the input file before conversion. The skeleton file
+must only contain the preamble and the following code:</p>
+<pre class="multiline"><code>\begin{document}
+%!CONTENT!%
+\end{document}</code></pre>
+<p><code>%!CONTENT!%</code> will be replaced with everything between
+<code>\begin{document}</code> and <code>\end{document}</code> of the
+input files. This ensures that any newcommands or new environments can
+be overwritten if necessary.</p>
+<p>It should be noted that both an HTML and LaTeX template can be
+provided using <code>--skeleton</code> or <code>-s</code> in any
+order.</p>
+<h2 id="tikz-environments">Tikz Environments</h2>
+<p>Assuming <code>-dt</code> or <code>--disable-tikz</code> is not being
+used, Handcrab will strip the tikz into a standalone graphic, compile
+that using <code>pdflatex</code> following the <code>tikz</code>
+template, then crop using <code>pdfcrop --margins 3</code>, and finally
+convert in bulk all tikz graphics to SVG files.</p>
+<p>The <code>\begin{tikzpicture}...\end{tikzpicture}</code> is then
+replaced with an <code>\includegraphics[width=0.3\textwidth]</code>
+call.</p>
+<p>If you want a tikz graphic to come with an alt description, add the
+marker under the <code>\end{tikzpicture}</code>. So for example:</p>
+<pre class=".{multiline}"><code>...
+\end{tikzpicture}
+!ALTMARKER! The intersection of the black circles has area 0.5
+...</code></pre>
+<p>I would be less careless about the placement of the markers with this
+than I would with regular includegraphics cals.</p>
+<p>The <code>--tikz-pdf</code> or <code>-tp</code> argument can be
+appended to the command to get tikz graphics to output as cropped PDFs.
+In cases where inkscape is being unhelpful, this may be preferred.</p>
+</body>
+</html>
